@@ -1,0 +1,18 @@
+key,source,title,arxiv_id,authors,comment
+rtfm,arxiv_loose,Weakly-supervised Video Anomaly Detection with Robust Temporal Feature Magnitude Learning,2101.10030v3,Yu Tian; Guansong Pang; Yuanhong Chen,Accepted to ICCV 2021
+msl,arxiv_loose,NO HIT,,,
+s3r,arxiv_loose,NO HIT,,,
+urdmu,arxiv_loose,Dual Memory Units with Uncertainty Regulation for Weakly Supervised Video Anomaly Detection,2302.05160v1,Hang Zhou; Junqing Yu; Wei Yang,AAAI2023 oral
+tpwng,arxiv_loose,Text Prompt with Normality Guidance for Weakly Supervised Video Anomaly Detection,2404.08531v1,Zhiwei Yang; Jing Liu; Peng Wu,Accepted to CVPR2024
+stprompt,arxiv_loose,Weakly Supervised Video Anomaly Detection and Localization with Spatio-Temporal Prompts,2408.05905v2,Peng Wu; Xuerong Zhou; Guansong Pang,Accepted by ACMMM2024
+stprompt,arxiv_loose,A Graph Prompt Fine-Tuning Method for WSN Spatio-Temporal Correlation Anomaly Detection,2601.12745v1,Miao Ye; Jing Cui; Yuan huang,
+gcn,arxiv_loose,Semi-Supervised Classification with Graph Convolutional Networks,1609.02907v4,Thomas N. Kipf; Max Welling,Published as a conference paper at ICLR 2017
+gcn,arxiv_loose,Progressive Graph Convolutional Networks for Semi-Supervised Node Classification,2003.12277v2,Negar Heidari; Alexandros Iosifidis,"11 pages, 4 figures, 4 tables, 1 algorithm"
+gcn,arxiv_loose,Hierarchical Graph Convolutional Networks for Semi-supervised Node Classification,1902.06667v4,Fenyu Hu; Yanqiao Zhu; Shu Wu,"8 pages, 3 figures, 3 tables, accepted by International Joint Conference on Artificial Intelligence (IJCAI-19)"
+gcn,arxiv_loose,Bayesian graph convolutional neural networks for semi-supervised classification,1811.11103v1,Yingxue Zhang; Soumyasundar Pal; Mark Coates,
+clipadapter,arxiv_loose,CLIP-Adapter: Better Vision-Language Models with Feature Adapters,2110.04544v2,Peng Gao; Shijie Geng; Renrui Zhang,Accepted by IJCV
+mgfn,s2_venue,ERROR HTTP Error 429: ,2211.15098,,
+pel4vad,s2_venue,ERROR HTTP Error 429: ,2306.14451,,
+holmesvad,s2_venue,ERROR HTTP Error 429: ,2406.12235,,
+adapter,s2_venue,ERROR HTTP Error 429: ,1902.00751,,
+lora,s2_venue,ERROR HTTP Error 429: ,2106.09685,,

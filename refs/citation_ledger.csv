@@ -1,5 +1,24 @@
 key,intended_work,used_in,claim_supported,metadata_source,status
-wu2024vadclip,"VadCLIP (Wu et al., AAAI 2024)",method.tex;experiments.tex,"base architecture, CLASM, dual outputs, headline metrics","arXiv 2308.11681 (comment: Accept to AAAI2024)",VERIFIED_IDENTITY_VENUE
-radford2021clip,"CLIP (Radford et al., ICML 2021)",method.tex,frozen snippet features,"Semantic Scholar: dblp conf/icml/RadfordKHRGASAM21, arXiv 2103.00020",VERIFIED_IDENTITY_VENUE
-wu2020xdviolence,"XD-Violence / HL-Net (Wu et al., ECCV 2020)",method.tex;experiments.tex,"XD-Violence dataset; similarity and distance graph branches","arXiv 2007.04687 (comment: To appear in ECCV 2020)",VERIFIED_IDENTITY_VENUE
-sultani2018real,"Real-world anomaly detection in surveillance videos (Sultani et al., CVPR 2018)",method.tex;experiments.tex,"UCF-Crime dataset; top-k MIL objective","Semantic Scholar: CVPR 2018, DOI 10.1109/CVPR.2018.00678",VERIFIED_IDENTITY_VENUE
+wu2024vadclip,"VadCLIP (Wu et al., AAAI 2024)",method.tex;experiments.tex;related_work.tex,"base architecture, CLASM, dual outputs, headline metrics","arXiv 2308.11681 (comment: Accept to AAAI2024)",VERIFIED_IDENTITY_VENUE
+radford2021clip,"CLIP (Radford et al., ICML 2021)",method.tex;related_work.tex,frozen snippet features,"Semantic Scholar: dblp conf/icml/RadfordKHRGASAM21, arXiv 2103.00020",VERIFIED_IDENTITY_VENUE
+wu2020xdviolence,"XD-Violence / HL-Net (Wu et al., ECCV 2020)",method.tex;experiments.tex;related_work.tex,"XD-Violence dataset; similarity and distance graph branches","arXiv 2007.04687 (comment: To appear in ECCV 2020)",VERIFIED_IDENTITY_VENUE
+sultani2018real,"UCF-Crime (Sultani et al., CVPR 2018)",method.tex;experiments.tex;related_work.tex,"UCF-Crime dataset; top-k MIL objective","Semantic Scholar: CVPR 2018, DOI 10.1109/CVPR.2018.00678",VERIFIED_IDENTITY_VENUE
+zhong2019gcnlnc,"GCN label noise cleaner (Zhong et al.)",related_work.tex,label-noise cleaning with graph convolution,"arXiv 1903.07256 (comment: To appear in CVPR 2019)",VERIFIED_IDENTITY_VENUE
+tian2021rtfm,"RTFM (Tian et al.)",related_work.tex,feature-magnitude learning,"arXiv 2101.10030 (comment: Accepted to ICCV 2021)",VERIFIED_IDENTITY_VENUE
+zhou2023urdmu,"UR-DMU (Zhou et al.)",related_work.tex,memory units with uncertainty regulation,"arXiv 2302.05160 (comment: AAAI2023 oral)",VERIFIED_IDENTITY_VENUE
+joo2023cliptsa,"CLIP-TSA (Joo et al.)",related_work.tex,CLIP features with temporal self-attention,"arXiv 2212.05136 (comment: ICIP 2023)",VERIFIED_IDENTITY_VENUE
+yang2024tpwng,"TPWNG (Yang et al.)",related_work.tex,normality guidance for text prompts,"arXiv 2404.08531 (comment: Accepted to CVPR2024)",VERIFIED_IDENTITY_VENUE
+wu2024stprompt,"STPrompt (Wu et al.)",related_work.tex,spatio-temporal prompts for localization,"arXiv 2408.05905 (comment: Accepted by ACMMM2024)",VERIFIED_IDENTITY_VENUE
+zanella2024lavad,"LAVAD (Zanella et al.)",related_work.tex,training-free LLM-based VAD,"arXiv 2404.01014 (comment: CVPR 2024)",VERIFIED_IDENTITY_VENUE
+chen2022mgfn,"MGFN (Chen et al.)",related_work.tex,magnitude-contrastive glance-and-focus,"arXiv 2211.15098 (no venue in comment)",VERIFIED_IDENTITY_ONLY
+pu2023pel4vad,"PEL4VAD (Pu et al.)",related_work.tex,prompt-enhanced context features,"arXiv 2306.14451 (no venue in comment)",VERIFIED_IDENTITY_ONLY
+zhang2024holmesvad,"Holmes-VAD (Zhang et al.)",related_work.tex,multimodal LLM instruction tuning for VAD,"arXiv 2406.12235 (no venue in comment)",VERIFIED_IDENTITY_ONLY
+wang2021tdn,"TDN (Wang et al.)",related_work.tex,temporal differences inside the backbone,"arXiv 2012.10071 (comment: CVPR2021 camera-ready)",VERIFIED_IDENTITY_VENUE
+lin2019tsm,"TSM (Lin et al.)",related_work.tex,temporal channel shift,"arXiv 1811.08383 (comment: Accepted by ICCV 2019)",VERIFIED_IDENTITY_VENUE
+kipf2017gcn,"GCN (Kipf and Welling)",related_work.tex,graph convolution,"arXiv 1609.02907 (comment: ICLR 2017)",VERIFIED_IDENTITY_VENUE
+ni2022xclip,"X-CLIP (Ni et al.)",related_work.tex,image-language pretraining extended to video,"arXiv 2208.02816 (comment: Accepted by ECCV2022)",VERIFIED_IDENTITY_VENUE
+zhou2022coop,"CoOp (Zhou et al.)",related_work.tex,prompt learning for CLIP,"arXiv 2109.01134 (comment: IJCV 2022)",VERIFIED_IDENTITY_VENUE
+gao2024clipadapter,"CLIP-Adapter (Gao et al.)",related_work.tex,feature adapters for CLIP,"arXiv 2110.04544 (comment: Accepted by IJCV; year not verified)",VERIFIED_IDENTITY_VENUE_NO_YEAR
+pan2022stadapter,"ST-Adapter (Pan et al.)",related_work.tex,image-to-video parameter-efficient transfer,"arXiv 2206.13559 (comment: Accepted in NeurIPS 2022)",VERIFIED_IDENTITY_VENUE
+houlsby2019adapter,"Adapters (Houlsby et al.)",related_work.tex,small trainable modules in a frozen model,"arXiv 1902.00751 (no venue in comment)",VERIFIED_IDENTITY_ONLY
+hu2021lora,"LoRA (Hu et al.)",related_work.tex,low-rank updates,"arXiv 2106.09685 (no venue in comment)",VERIFIED_IDENTITY_ONLY
