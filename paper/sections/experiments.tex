@@ -1,0 +1,66 @@
+% Experiments. All numbers come from numbers.tex / numbers_results.tex and tables/*.tex.
+
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Setup}
+\label{sec:setup}
+
+\paragraph{Datasets and metrics.}
+We use UCF-Crime~\cite{sultani2018real} and XD-Violence~\cite{wu2020xdviolence} with the CLIP snippet features, splits, and frame-level ground truth released with VadCLIP~\cite{wu2024vadclip}. The test sets contain 290 and 800 videos. Following VadCLIP, the headline metric is frame-level AUC of $s^{(1)}$ on UCF-Crime and frame-level AP of $p$ on XD-Violence. Because the two datasets are headlined on different outputs, we also report the other output on each dataset.
+
+\paragraph{Training protocol.}
+The released VadCLIP training script evaluates the model on the test set after every epoch, keeps the checkpoint with the best test AP, and reloads it before the next epoch. We instead train every model for a fixed 10 epochs and evaluate only the final checkpoint, so that neither training nor checkpoint selection accesses test data. All other settings follow the released configuration of each dataset. Each condition is trained with seeds 234, 235, and 236; runs that share a seed share initialization and sample order, and we report paired differences per seed together with the number of seeds on which the difference is positive. Under this protocol the retrained VadCLIP reaches \ucfBase{} AUC on UCF-Crime and \xdBase{} AP on XD-Violence, against \ucfOfficial{} and \xdOfficial{} for the released checkpoint evaluated with the same evaluator. Section~\ref{sec:protocol} returns to this gap.
+
+\subsection{Comparison with published methods}
+\label{sec:sota}
+
+% TBD: domain comparison table (tab:sota). Reported numbers from original papers only,
+% with feature backbone and protocol notes; our row = controlled mean +- SD.
+Table~\ref{tab:sota} (TBD) lists published results as reported by their authors. Our row reports the mean over three seeds under the protocol above and is not directly comparable to single runs selected on the test set.
+
+\subsection{Controlled comparison}
+\label{sec:controlled}
+
+\input{tables/tab_controlled}
+
+Table~\ref{tab:controlled} compares our method with VadCLIP retrained under the same protocol and seeds. On UCF-Crime, AUC improves by \ucfGainMean{} points ($\pm$\ucfGainSd, \ucfGainPos{} seeds). On XD-Violence, AP improves by \xdGainMean{} points ($\pm$\xdGainSd, \xdGainPos{} seeds). The seed-to-seed spread of the baseline is larger than the gains, but the paired differences have the same sign on every seed. The XD-Violence gain is on the semantic output: AP of $s^{(1)}$ changes by \xdApOneChangeMean{} points, and the baseline's AP of $s^{(1)}$ (\xdBaseApOne) is close to our AP of $p$ (\xdOurs).
+
+\subsection{Stage 1: where variation is computed}
+\label{sec:ablation}
+
+\input{tables/tab_stage1}
+
+The UCF-Crime gain comes from Stage~1; Stage~2 leaves $s^{(1)}$ unchanged by construction. To test whether the placement of the difference matters, we train Stage~1 with variation computed after aggregation, $D'_j = \lvert A_j - A_{j-1} \rvert$, keeping every other setting fixed. Computing variation before aggregation is better by \prePostMean{} AUC points ($\pm$\prePostSd, \prePostPos{} seeds), and the post-aggregation variant falls below the baseline by \postBaseMean{} points on every seed. The two variants receive identical inputs on videos shorter than $T$, which are only padded; they differ on the long training videos that are averaged (Sec.~\ref{sec:pvr}) and at test-window boundaries.
+
+On XD-Violence, Stage~1 alone does not improve AP (\xdStageOneMean{} points, \xdStageOnePos{} seeds). The graph refinement is not useful on its own: trained without the variation residual (seed 234 only), it reaches \eOnlyUcfAuc{} AUC on UCF-Crime and changes XD-Violence AP by \eOnlyXdDelta{} points. We keep it as part of Stage~1 because the final model contains it; the supplement reports the full factorial.
+
+\subsection{Stage 2: semantic post-training}
+\label{sec:stage2}
+
+\input{tables/tab_stage2}
+
+Table~\ref{tab:stage2} separates the effect of the semantic objective from the effect of three additional epochs. The control C runs the same three epochs from the same checkpoint and sample order with $\lambda = 0$. The semantic objective adds \tMinusCMean{} AP points over C ($\pm$\tMinusCSd, \tMinusCPos{} seeds). Applied directly to the retrained VadCLIP, Stage~2 improves AP by \bzTMean{} points (\bzTPos{} seeds), and adding Stage~1 before it changes AP by a further \tMinusBzTMean{} points (\tMinusBzTPos{} seeds). The XD-Violence gain of the full method is therefore attributable to Stage~2. On UCF-Crime, Stage~2 changes AP of $p$ by \ucfApTwoStageTwoMean{} points.
+
+Throughout Stage~2 training, the maximum change of $s^{(1)}$ on a fixed probe batch was zero and no parameter outside $\mathrm{mlp}_1$ changed.
+
+\subsection{Sensitivity to the training protocol}
+\label{sec:protocol}
+
+\input{tables/tab_protocol}
+
+We repeated the XD-Violence comparison with the released training script. Under that protocol the retrained VadCLIP reaches \xdRelBase{} AP, \protoGapMean{} points above the test-independent baseline (\protoGapPos{} seeds). Within the released runs, the selected checkpoint exceeds the final-epoch checkpoint by only \relLiftMean{} points, so most of the gap reflects a different training trajectory rather than the choice of checkpoint. Our improvement does not carry over: Stage~2 changes AP by \relTMean{} points ($\pm$\relTSd, \relTPos{} seeds). We have not isolated the cause of this difference, and we did not run UCF-Crime under the released protocol. The gains reported above therefore hold for training without test-set access.
+
+\subsection{Complexity}
+\label{sec:complexity}
+
+% TBD: measure B0 vs. Final inference latency (batch 1, median of N runs after warm-up)
+% and peak memory on the same GPU; analytic FLOPs of PVR and the kNN graph.
+Stage~1 adds \pvrParams{} parameters and Stage~2 adds none. Inference latency and memory: TBD.
+
+\subsection{Qualitative results}
+\label{sec:qualitative}
+
+% TBD: F3 temporal score curves, videos chosen by the pre-registered quantile rule
+% (evidence/figure_selection_rule.md).
+TBD.
