@@ -3,7 +3,7 @@
 \section{Preliminaries: VadCLIP}
 \label{sec:prelim}
 
-VadCLIP~\cite{wu2024vadclip} detects anomalies from frozen CLIP~\cite{radford2021clip} snippet features $X \in \mathbb{R}^{L \times d}$, where $L$ is the number of snippets and $d=512$. During training, each video is mapped to a fixed length $T=256$ by an operator $\mathrm{Agg}(\cdot)$: videos with $L > T$ are divided into $T$ uniform segments and each segment is mean-pooled, and shorter videos are zero-padded. At test time the sequence is not pooled; it is cut into non-overlapping windows of length $T$.
+VadCLIP~\cite{wu2024vadclip} detects anomalies from frozen CLIP~\cite{radford2021clip} snippet features $X \in \mathbb{R}^{L \times d}$, where $L$ is the number of snippets and $d=512$. During training, each video is mapped to a fixed length $T=256$ by an operator $\mathrm{Agg}(\cdot)$: videos with $L > T$ are divided into $T$ uniform segments and each segment is mean-pooled, and shorter videos are zero-padded. At test time the sequence is cut into non-overlapping windows of length $T$ without pooling.
 
 The aggregated features pass through a local temporal transformer and two graph convolution branches, one built on feature similarity and one on temporal distance~\cite{wu2020xdviolence}. Their output $h \in \mathbb{R}^{T \times d}$ is the shared representation from which both predictions are computed.
 
@@ -20,17 +20,17 @@ trained with a top-$k$ multiple-instance objective~\cite{sultani2018real}. The s
 \end{equation}
 with $\tau = 0.07$. The semantic anomaly probability of snippet $j$ is $p_j = 1 - \mathrm{softmax}(s^{(2)}_{j})_{\mathrm{normal}}$, and $s^{(2)}$ is trained with the CLASM objective $\mathcal{L}_{\mathrm{CLASM}}$~\cite{wu2024vadclip}.
 
-The two outputs form a cascade rather than two parallel heads: $s^{(2)}$ depends on $s^{(1)}$ through $a$, while $s^{(1)}$ does not depend on $\mathrm{mlp}_1$. Following VadCLIP, UCF-Crime is reported with AUC computed from $s^{(1)}$ and XD-Violence with AP computed from $p$.
+The two outputs form a cascade: $s^{(2)}$ depends on $s^{(1)}$ through $a$, and $s^{(1)}$ is independent of $\mathrm{mlp}_1$. Following VadCLIP, UCF-Crime is reported with AUC computed from $s^{(1)}$ and XD-Violence with AP computed from $p$.
 
 \section{Method}
 \label{sec:method}
 
-Our method trains VadCLIP in two stages and uses the same pipeline and hyperparameters on both datasets. Stage~1 changes the shared representation $h$: it adds temporal variation computed before aggregation (Sec.~\ref{sec:pvr}) and a sparse refinement of the similarity graph (Sec.~\ref{sec:graph}). Stage~2 starts from the Stage~1 model and adds a semantic multiple-instance objective, but updates only $\mathrm{mlp}_1$, so that the additional optimization stays in the semantic pathway (Sec.~\ref{sec:isa}). Figure~\ref{fig:overview} summarizes both stages.
+Our method trains VadCLIP in two stages and uses the same pipeline and hyperparameters on both datasets. Stage~1 changes the shared representation $h$: it adds temporal variation computed before aggregation (Sec.~\ref{sec:pvr}) and a sparse refinement of the similarity graph (Sec.~\ref{sec:graph}). Stage~2 starts from the Stage~1 model and trains a semantic multiple-instance objective on $\mathrm{mlp}_1$ alone, which keeps the additional optimization in the semantic pathway (Sec.~\ref{sec:isa}). Figure~\ref{fig:overview} summarizes both stages.
 
 \subsection{Pre-aggregation variation residual}
 \label{sec:pvr}
 
-For a long training video, $\mathrm{Agg}$ averages consecutive snippets within each segment, so changes between snippets inside a segment do not appear in the pooled sequence. Differencing the pooled sequence only measures change between segment means. In our training sets, \ucfTrainAvgFrac\% of UCF-Crime and \xdTrainAvgFrac\% of XD-Violence items are longer than $T$, with on average \ucfBinSize{} and \xdBinSize{} snippets per segment respectively.
+For a long training video, $\mathrm{Agg}$ averages consecutive snippets within each segment, which averages away the changes between snippets inside a segment. Differencing the pooled sequence measures change between segment means. In our training sets, \ucfTrainAvgFrac\% of UCF-Crime and \xdTrainAvgFrac\% of XD-Violence items are longer than $T$, with on average \ucfBinSize{} and \xdBinSize{} snippets per segment respectively.
 
 We therefore compute variation on the raw snippet sequence, before pooling:
 \begin{equation}
@@ -53,12 +53,12 @@ VadCLIP builds the similarity graph $G_{\mathrm{orig}}$ from cosine similarities
   G = (1-\alpha)\, G_{\mathrm{orig}} + \alpha\, \mathrm{softmax}\big(M_k(S)\big),
   \label{eq:graph}
 \end{equation}
-where $S$ is the cosine similarity matrix and $M_k$ keeps the $k$ largest entries of each row (including the snippet itself) and sets the rest to $-\infty$. We use $k = 16$ and $\alpha = 0.25$. $G$ replaces $G_{\mathrm{orig}}$ in the similarity branch; the distance branch is unchanged, and no parameters are added. Section~\ref{sec:ablation} examines this refinement with and without the variation residual.
+where $S$ is the cosine similarity matrix and $M_k$ keeps the $k$ largest entries of each row (including the snippet itself) and sets the rest to $-\infty$. We use $k = 16$ and $\alpha = 0.25$. $G$ replaces $G_{\mathrm{orig}}$ in the similarity branch. The distance branch and the parameter count are unchanged. Section~\ref{sec:ablation} examines this refinement with and without the variation residual.
 
 \subsection{Pathway-restricted semantic post-training}
 \label{sec:isa}
 
-CLASM supervises $s^{(2)}$ through class-level top-$k$ pooling but gives no direct video-level anomaly target for $p$. A natural addition is a binary multiple-instance loss on $p$. For a video with valid length $\ell$, let $q$ be the mean of the $k' = \lfloor \ell/16 \rfloor + 1$ largest values of $p_j$ and $y \in \{0,1\}$ its video label:
+CLASM supervises $s^{(2)}$ through class-level top-$k$ pooling. A binary multiple-instance loss on $p$ adds a direct video-level anomaly target. For a video with valid length $\ell$, let $q$ be the mean of the $k' = \lfloor \ell/16 \rfloor + 1$ largest values of $p_j$ and $y \in \{0,1\}$ its video label:
 \begin{equation}
   \mathcal{L}_{G} = \mathrm{BCE}(q, y), \qquad
   \mathcal{L} = \mathcal{L}_{\mathrm{CLASM}} + \lambda\, \mathcal{L}_{G},
@@ -66,9 +66,9 @@ CLASM supervises $s^{(2)}$ through class-level top-$k$ pooling but gives no dire
 \end{equation}
 with $\lambda = 0.1$. When we trained the whole network with this loss added, the gradient also changed $h$ and therefore $s^{(1)}$. In a single-seed run, this raised XD-Violence AP by \fullGXdApTwo{} points and changed UCF-Crime AUC by \fullGUcfAucOne{} points relative to the Stage~1 model.
 
-Stage~2 instead optimizes Eq.~\eqref{eq:isa} with respect to $\theta_{\mathrm{mlp}_1}$ only. Because $s^{(1)}$ in Eq.~\eqref{eq:logits1} does not depend on $\mathrm{mlp}_1$, the classification output is unchanged by construction, while $p$ can still adapt. All other parameters are frozen and the rest of the network runs in evaluation mode. Stage~2 updates \mlpOneParams{} existing parameters for three epochs with AdamW (learning rate $2\times10^{-5}$, weight decay $0.01$, no scheduler) and adds no parameters or inference cost.
+Stage~2 optimizes Eq.~\eqref{eq:isa} with respect to $\theta_{\mathrm{mlp}_1}$ only. Because $s^{(1)}$ in Eq.~\eqref{eq:logits1} is independent of $\mathrm{mlp}_1$, the classification output is unchanged by construction, while $p$ can still adapt. All other parameters are frozen and the rest of the network runs in evaluation mode. Stage~2 updates \mlpOneParams{} existing parameters for three epochs with AdamW (learning rate $2\times10^{-5}$, weight decay $0.01$, no scheduler) and adds no parameters or inference cost.
 
 \subsection{Implementation details}
 \label{sec:impl}
 
-Stage~1 follows the released VadCLIP training configuration for each dataset, including its loss weights, for 10 epochs, and we evaluate the final-epoch checkpoint. Stage~2 uses batch size 64 on UCF-Crime and 96 on XD-Violence. The hyperparameters $\beta$, $k$, $\alpha$, and $\lambda$ are shared across datasets. Inference latency and memory are reported in Sec.~\ref{sec:complexity} (TBD: measurement pending).
+Stage~1 follows the released VadCLIP training configuration for each dataset, including its loss weights, for 10 epochs, and we evaluate the final-epoch checkpoint. Stage~2 uses batch size 64 on UCF-Crime and 96 on XD-Violence. The hyperparameters $\beta$, $k$, $\alpha$, and $\lambda$ are shared across datasets. Section~\ref{sec:complexity} reports inference cost.
