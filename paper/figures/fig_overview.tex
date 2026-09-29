@@ -19,7 +19,9 @@
   \node[new] (R) at (6.5,1.1) {$R(V)$\\ zero-init};
   \node[frz] (AggA) at (4.9,-0.7) {$\mathrm{Agg}$};
   \node[op] (plus) at (7.55,0) {$+$};
-  \node[new, font=\footnotesize] (Enc) at (10.0,0) {temporal transformer\\ similarity graph + $k$NN\\ distance graph};
+  \node[frz, font=\footnotesize] (Enc) at (10.0,0) {temporal transformer\\ similarity graph\\ distance graph};
+  \node[new, font=\footnotesize] (knn) at (10.0,1.3) {sparse $k$NN mix};
+  \draw[->] (knn) -- (Enc);
   \node[box] (h) at (12.2,0) {$h$};
 
   % Cascade outputs
