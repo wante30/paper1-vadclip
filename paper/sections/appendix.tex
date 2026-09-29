@@ -1,0 +1,12 @@
+% Appendix. Numbers via macros.
+
+\appendix
+
+\section{Sensitivity to the training protocol}
+\label{app:protocol}
+
+\input{tables/tab_protocol}
+
+We repeated the XD-Violence comparison with VadCLIP's released training script, which evaluates on the test set after every epoch and keeps and reloads the best checkpoint. Under that script the retrained VadCLIP reaches \xdRelBase{} AP, \protoGapMean{} points above the test-independent baseline (\protoGapPos{} seeds). Within the released runs, the selected checkpoint exceeds the final-epoch checkpoint of the same run by \relLiftMean{} points, so most of the difference between the protocols reflects a different training trajectory rather than the choice of checkpoint. Under the released script, Stage~1 changes AP by \relStageOneMean{} points (\relStageOnePos{} seeds) and the full method by \relTMean{} points ($\pm$\relTSd, \relTPos{} seeds).
+
+We have not isolated which part of the released procedure produces this difference, and we did not train UCF-Crime models under the released script. The results in Sec.~\ref{sec:experiments} therefore apply to training without test-set access.

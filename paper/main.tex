@@ -18,7 +18,7 @@
 \maketitle
 
 \begin{abstract}
-CLIP-based weakly supervised video anomaly detectors resample every training video to a fixed length before learning, and VadCLIP computes its semantic output downstream of its classification output. Segment-mean pooling removes snippet-level change inside long videos, and adding semantic supervision to the whole network also changes the classification output. We refine VadCLIP in two stages. Stage~1 injects temporal variation computed before pooling through a zero-initialized low-rank residual, together with a sparse neighbourhood refinement of the similarity graph. Stage~2 trains a semantic multiple-instance objective on the text-side adapter only, which leaves the classification output unchanged by construction. Trained without test-set access and compared with VadCLIP retrained under the same protocol over three seeds, our method improves UCF-Crime AUC by \ucfGainMean{} points and XD-Violence AP by \xdGainMean{} points, with positive paired differences on every seed. Attribution experiments trace the first gain to pre-pooling variation and the second to semantic post-training. The XD-Violence gain does not hold under VadCLIP's released training script, which selects checkpoints on the test set.
+CLIP-based weakly supervised video anomaly detectors resample every training video to a fixed length before learning, and VadCLIP computes its semantic output downstream of its classification output. Segment-mean pooling removes snippet-level change inside long videos, and adding semantic supervision to the whole network also changes the classification output. We refine VadCLIP in two stages. Stage~1 injects temporal variation computed before pooling through a zero-initialized low-rank residual, together with a sparse neighbourhood refinement of the similarity graph. Stage~2 trains a semantic multiple-instance objective on the text-side adapter only, which leaves the classification output unchanged by construction. Trained without test-set access and compared with VadCLIP retrained under the same protocol over three seeds, our method improves UCF-Crime AUC by \ucfGainMean{} points and XD-Violence AP by \xdGainMean{} points, with positive paired differences on every seed. Attribution experiments trace the first gain to pre-pooling variation and the second to semantic post-training.
 \end{abstract}
 
 \input{sections/introduction}
@@ -32,5 +32,7 @@ CLIP-based weakly supervised video anomaly detectors resample every training vid
 
 \bibliographystyle{plain}
 \bibliography{../refs/references}
+
+\input{sections/appendix}
 
 \end{document}
