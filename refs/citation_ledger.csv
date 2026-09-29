@@ -1,0 +1,5 @@
+key,intended_work,used_in,claim_supported,metadata_source,status
+wu2024vadclip,"VadCLIP (Wu et al., AAAI 2024)",method.tex,"base architecture, CLASM, dual outputs, headline metrics",,PENDING_DBLP
+radford2021clip,"CLIP (Radford et al., ICML 2021)",method.tex,frozen snippet features,,PENDING_DBLP
+wu2020xdviolence,"XD-Violence / HL-Net (Wu et al., ECCV 2020)",method.tex,similarity and distance graph branches,,PENDING_DBLP
+sultani2018real,"Real-world anomaly detection in surveillance videos (Sultani et al., CVPR 2018)",method.tex,top-k MIL objective,,PENDING_DBLP
