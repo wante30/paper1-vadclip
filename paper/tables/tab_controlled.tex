@@ -2,13 +2,14 @@
 \begin{table}[t]
 \centering
 \small
+\setlength{\tabcolsep}{4pt}
 \caption{Controlled comparison under the test-independent protocol (mean$\pm$SD over seeds 234--236, \%). Paired $\Delta$ is computed per seed; parentheses give the number of positive seeds. Headline metrics follow VadCLIP: AUC of $s^{(1)}$ on UCF-Crime and AP of $p$ on XD-Violence. The first row is VadCLIP's released checkpoint evaluated with our evaluator.}
 \label{tab:controlled}
 \begin{tabular}{lcccc}
 \toprule
 Method & UCF AUC$_1$ & UCF AP$_2$ & XD AP$_2$ & XD AP$_1$ \\
 \midrule
-Released checkpoint (re-evaluated) & 88.02 & 26.50 & 84.50 & 80.31 \\
+Released ckpt.\ (re-eval.) & 88.02 & 26.50 & 84.50 & 80.31 \\
 \midrule
 VadCLIP, retrained & 86.25$\pm$0.83 & 26.46$\pm$1.20 & 77.57$\pm$2.19 & 79.61$\pm$0.86 \\
 Ours & 86.53$\pm$0.85 & 27.30$\pm$1.60 & 79.23$\pm$1.87 & 79.54$\pm$0.97 \\
