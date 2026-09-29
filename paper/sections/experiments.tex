@@ -54,9 +54,7 @@ We repeated the XD-Violence comparison with the released training script. Under 
 \subsection{Complexity}
 \label{sec:complexity}
 
-% TBD: measure B0 vs. Final inference latency (batch 1, median of N runs after warm-up)
-% and peak memory on the same GPU; analytic FLOPs of PVR and the kNN graph.
-Stage~1 adds \pvrParams{} parameters and Stage~2 adds none. Inference latency and memory: TBD.
+Stage~1 adds \pvrParams{} parameters and Stage~2 adds none. We measure inference on one window of $T$ snippets with batch size 1 on an \cxGpu{}, taking the median of 200 forward passes after 20 warm-up passes; each pass includes the prompt encoding that VadCLIP performs in both models. Latency rises from \cxUcfLatBase{} to \cxUcfLatOurs{} ms on UCF-Crime (\cxUcfLatRel\%) and from \cxXdLatBase{} to \cxXdLatOurs{} ms on XD-Violence (\cxXdLatRel\%), and peak memory changes by at most \cxUcfMemDelta{} MB.
 
 \subsection{Qualitative results}
 \label{sec:qualitative}
