@@ -35,8 +35,7 @@ Table~\ref{tab:controlled} compares our method with VadCLIP retrained under the 
 
 Stage~1 produces the UCF-Crime gain, since Stage~2 leaves $s^{(1)}$ unchanged by construction. Table~\ref{tab:stage1} isolates the placement of the difference. We train Stage~1 with variation computed after aggregation, $D'_j = \lvert A_j - A_{j-1} \rvert$, and keep every other setting fixed. This variant falls below the baseline by \postBaseMean{} points on every seed, whereas computing variation before aggregation is better than after it by \prePostMean{} AUC points ($\pm$\prePostSd, \prePostPos{} seeds). The position of the difference relative to pooling therefore determines the gain. The two variants receive identical inputs on videos shorter than $T$, which are only padded, and differ on the long training videos that are averaged (Sec.~\ref{sec:pvr}) and at test-window boundaries.
 
-On XD-Violence, Stage~1 alone changes AP by \xdStageOneMean{} points (\xdStageOnePos{} seeds). The graph refinement depends on the variation residual: trained without it (seed 234 only), it reaches \eOnlyUcfAuc{} AUC on UCF-Crime and changes XD-Violence AP by \eOnlyXdDelta{} points.
-
+On XD-Violence, Stage~1 alone changes AP by \xdStageOneMean{} points (\xdStageOnePos{} seeds).
 \subsection{Stage 2: semantic post-training}
 \label{sec:stage2}
 

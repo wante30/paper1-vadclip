@@ -53,8 +53,7 @@ VadCLIP builds the similarity graph $G_{\mathrm{orig}}$ from cosine similarities
   G = (1-\alpha)\, G_{\mathrm{orig}} + \alpha\, \mathrm{softmax}\big(M_k(S)\big),
   \label{eq:graph}
 \end{equation}
-where $S$ is the cosine similarity matrix and $M_k$ keeps the $k$ largest entries of each row (including the snippet itself) and sets the rest to $-\infty$. We use $k = 16$ and $\alpha = 0.25$. $G$ replaces $G_{\mathrm{orig}}$ in the similarity branch. The distance branch and the parameter count are unchanged. Section~\ref{sec:ablation} examines this refinement with and without the variation residual.
-
+where $S$ is the cosine similarity matrix and $M_k$ keeps the $k$ largest entries of each row (including the snippet itself) and sets the rest to $-\infty$. We use $k = 16$ and $\alpha = 0.25$. $G$ replaces $G_{\mathrm{orig}}$ in the similarity branch. The distance branch and the parameter count are unchanged.
 \subsection{Pathway-restricted semantic post-training}
 \label{sec:isa}
 

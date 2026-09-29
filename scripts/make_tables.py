@@ -94,8 +94,8 @@ def main():
           "Method & UCF AUC$_1$ & UCF AP$_2$ & XD AP$_2$ & XD AP$_1$", rows)
 
     # Table: Stage 1 analysis
-    s1 = [("VadCLIP (B0)", "B0"), ("+ PVR", "A"), ("+ PVR + graph (Stage 1)", "AE"),
-          ("Stage 1, post-agg.\\ variation", "POST")]
+    s1 = [("VadCLIP (B0)", "B0"), ("Stage 1, pre-aggregation (Ours)", "AE"),
+          ("Stage 1, post-aggregation", "POST")]
     rows = []
     for name, cond in s1:
         u, x = agg("UCF", "clean", cond, "AUC1"), agg("XD", "clean", cond, "AP2")
@@ -103,8 +103,9 @@ def main():
         dx = None if cond == "B0" else pdelta("XD", "AP2", ("clean", cond), ("clean", "B0"))
         rows.append([name, cell(u), dcell(du), cell(x), dcell(dx)])
     write("tab_stage1.tex",
-          "Stage 1 components (test-independent protocol, %). $\\Delta$ is the paired difference to B0. "
-          "Superscripts mark conditions with fewer than three seeds.",
+          "Placement of temporal variation in Stage 1 (test-independent protocol, %). Pre-aggregation computes "
+          "variation on raw snippets; post-aggregation computes it on the pooled sequence with all other settings "
+          "fixed. $\\Delta$ is the paired difference to B0.",
           "tab:stage1", "lcccc",
           "Variant & UCF AUC$_1$ & $\\Delta$ & XD AP$_2$ & $\\Delta$", rows)
 
