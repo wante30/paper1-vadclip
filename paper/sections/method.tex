@@ -25,7 +25,7 @@ The two outputs form a cascade: $s^{(2)}$ depends on $s^{(1)}$ through $a$, and 
 \section{Method}
 \label{sec:method}
 
-Our method trains VadCLIP in two stages and uses the same pipeline and hyperparameters on both datasets. Stage~1 changes the shared representation $h$: it adds temporal variation computed before aggregation (Sec.~\ref{sec:pvr}) and a sparse refinement of the similarity graph (Sec.~\ref{sec:graph}). Stage~2 starts from the Stage~1 model and trains a semantic multiple-instance objective on $\mathrm{mlp}_1$ alone, which keeps the additional optimization in the semantic pathway (Sec.~\ref{sec:isa}). Figure~\ref{fig:overview} summarizes both stages.
+Our method trains VadCLIP in two stages. Both datasets use the same method design and the same module hyperparameters, and each keeps VadCLIP's dataset-specific training configuration. Stage~1 changes the shared representation $h$: it adds temporal variation computed before aggregation (Sec.~\ref{sec:pvr}) and a sparse refinement of the similarity graph (Sec.~\ref{sec:graph}). Stage~2 starts from the Stage~1 model and trains a semantic multiple-instance objective on $\mathrm{mlp}_1$ alone, which keeps the additional optimization in the semantic pathway (Sec.~\ref{sec:isa}). Figure~\ref{fig:overview} summarizes both stages.
 
 \subsection{Pre-aggregation variation residual}
 \label{sec:pvr}

@@ -19,7 +19,7 @@ With our evaluator, VadCLIP's released checkpoints reach \ucfOfficial{} AUC on U
 
 % TBD: domain comparison table (tab:sota). Reported numbers from original papers only,
 % with feature backbone and protocol notes; our row = controlled mean +- SD.
-Table~\ref{tab:sota} (TBD) lists published results as reported by their authors. Our row reports the three-seed mean under the protocol above, whereas the published rows are single runs selected on the test set.
+Table~\ref{tab:sota} (TBD) lists published results as reported by their authors. Published numbers are taken from the corresponding papers under their respective training and model-selection protocols, and our row is the three-seed mean under the protocol described above.
 
 \subsection{Controlled comparison}
 \label{sec:controlled}
@@ -27,9 +27,6 @@ Table~\ref{tab:sota} (TBD) lists published results as reported by their authors.
 \input{tables/tab_controlled}
 
 Table~\ref{tab:controlled} compares our method with VadCLIP retrained under the same protocol and seeds. On UCF-Crime, AUC improves by \ucfGainMean{} points ($\pm$\ucfGainSd, \ucfGainPos{} seeds). On XD-Violence, AP improves by \xdGainMean{} points ($\pm$\xdGainSd, \xdGainPos{} seeds). Both arms of each pair share initialization and sample order, so the paired difference removes variation common to a seed, and it is positive on every seed for both datasets. The XD-Violence gain is on the semantic output that VadCLIP uses for its XD-Violence headline, and AP of $s^{(1)}$ changes by \xdApOneChangeMean{} points.
-
-\paragraph{Released training protocol.}
-Under VadCLIP's released script, which selects checkpoints on the test set, the retrained baseline reaches \xdRelBase{} AP on XD-Violence and our method changes AP by \relTMean{} points (Appendix~\ref{app:protocol}).
 
 \subsection{Stage 1: where variation is computed}
 \label{sec:ablation}
