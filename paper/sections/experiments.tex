@@ -26,7 +26,14 @@ Table~\ref{tab:sota} (TBD) lists published results as reported by their authors.
 
 \input{tables/tab_controlled}
 
-Table~\ref{tab:controlled} compares our method with VadCLIP retrained under the same protocol and seeds. On UCF-Crime, AUC improves by \ucfGainMean{} points ($\pm$\ucfGainSd, \ucfGainPos{} seeds). On XD-Violence, AP improves by \xdGainMean{} points ($\pm$\xdGainSd, \xdGainPos{} seeds). Both arms of each pair share initialization and sample order, so the paired difference removes variation common to a seed, and it is positive on every seed for both datasets. The XD-Violence gain is on the semantic output that VadCLIP uses for its XD-Violence headline, and AP of $s^{(1)}$ changes by \xdApOneChangeMean{} points.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/fig_paired.pdf}
+  \caption{Paired per-seed results under the test-independent protocol. Each line connects the two arms of one seed; the title gives the mean paired difference in points and the number of positive seeds. Left to right: full method against retrained VadCLIP on UCF-Crime (AUC) and XD-Violence (AP), pre- against post-aggregation variation in Stage~1, and Stage~2 against the equal-budget control with $\lambda = 0$.}
+  \label{fig:paired}
+\end{figure}
+
+Table~\ref{tab:controlled} compares our method with VadCLIP retrained under the same protocol and seeds. On UCF-Crime, AUC improves by \ucfGainMean{} points ($\pm$\ucfGainSd, \ucfGainPos{} seeds). On XD-Violence, AP improves by \xdGainMean{} points ($\pm$\xdGainSd, \xdGainPos{} seeds). Both arms of each pair share initialization and sample order, so the paired difference removes variation common to a seed, and it is positive on every seed for both datasets (Fig.~\ref{fig:paired}). The XD-Violence gain is on the semantic output that VadCLIP uses for its XD-Violence headline, and AP of $s^{(1)}$ changes by \xdApOneChangeMean{} points.
 
 \subsection{Stage 1: where variation is computed}
 \label{sec:ablation}
