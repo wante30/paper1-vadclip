@@ -11,7 +11,18 @@ Model source `src/{ucf,xd}/model.py` (sha256 `321a39a0…`, identical role in bo
 | Train: Agg = uniform segment-mean pooling to T=256 if L>256, else zero-pad | `process_feat` → `uniform_extract(avg=True)` / `pad` | `src/ucf/utils/tools.py:60-90` |
 | Test: no averaging; non-overlapping windows of 256, last window zero-padded | `process_split` | `src/ucf/utils/tools.py:92-106` |
 
-Consequence for the paper: "Agg" must be defined as the train-time operator. At test time Agg is a windowing (identity within each window), so V_test = D split into windows. Fraction of training videos that are actually averaged: see `length_stats.csv` (pending).
+Consequence for the paper: "Agg" must be defined as the train-time operator. At test time Agg is a windowing (identity within each window), so V_test = D split into windows.
+
+Items with L > 256, i.e. actually averaged at training (`length_stats.csv`, `scripts/length_stats.py`):
+
+| Split | Items | Median L | Max L | Fraction L > 256 | Mean bin size when averaged |
+|---|---:|---:|---:|---:|---:|
+| UCF train | 16,100 | 138.5 | 61,032 | 27.95% | 5.76 |
+| UCF test | 290 | 111.5 | 6,750 | 21.38% | (not averaged at test) |
+| XD train | 39,540 | 165.0 | 16,225 | 30.40% | 2.23 |
+| XD test | 800 | 128.5 | 2,075 | 22.88% | (not averaged at test) |
+
+For items with L ≤ 256 (≈72% UCF, ≈70% XD training items), Agg is padding only and PRE and POST variation are identical over the valid length. PRE and POST differ only on the long, averaged training items and at test-window boundaries.
 
 ## Stage 1 — PVR (pre-aggregation variation residual)
 
