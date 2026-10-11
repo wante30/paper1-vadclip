@@ -1,0 +1,7 @@
+dataset,protocol,condition,seed,metric,value_pct,note
+XD,official_rerun,B0,234,AP2,84.21,user-provided summary; released VadCLIP training script; remote RTX 4090; replace with metrics.json when available
+XD,official_rerun,T,234,AP2,84.94,user-provided summary; released VadCLIP training script; remote RTX 4090; replace with metrics.json when available
+XD,official_rerun,B0,235,AP2,81.77,user-provided summary; released VadCLIP training script; remote RTX 4090; replace with metrics.json when available
+XD,official_rerun,T,235,AP2,82.65,user-provided summary; released VadCLIP training script; remote RTX 4090; replace with metrics.json when available
+XD,official_rerun,B0,236,AP2,82.74,user-provided summary; released VadCLIP training script; remote RTX 4090; replace with metrics.json when available
+XD,official_rerun,T,236,AP2,83.31,user-provided summary; released VadCLIP training script; remote RTX 4090; replace with metrics.json when available

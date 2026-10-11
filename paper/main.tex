@@ -1,40 +1,37 @@
-% Template-neutral draft. Switch to the official venue class once the venue is chosen.
-\documentclass[10pt]{article}
-\usepackage[margin=1in]{geometry}
+% CSCWD 6-page version (IEEE conference, two-column).
+\documentclass[conference]{IEEEtran}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
 \usepackage[hidelinks]{hyperref}
 
 \input{numbers}
 \input{numbers_results}
 
-\title{Pre-Aggregation Temporal Variation and Pathway-Restricted Semantic Post-Training for CLIP-Based Weakly Supervised Video Anomaly Detection}
-\author{Draft}
-\date{}
-
 \begin{document}
+
+\title{Pre-Aggregation Temporal Variation and Pathway-Restricted Semantic Adaptation for Weakly Supervised Video Anomaly Detection}
+\author{\IEEEauthorblockN{Anonymous Authors}}
 \maketitle
 
 \begin{abstract}
-CLIP-based weakly supervised video anomaly detectors resample every training video to a fixed length before learning, and VadCLIP computes its semantic output downstream of its classification output. Segment-mean pooling removes snippet-level change inside long videos, and adding semantic supervision to the whole network also changes the classification output. We refine VadCLIP in two stages. Stage~1 injects temporal variation computed before pooling through a zero-initialized low-rank residual, together with a sparse neighbourhood refinement of the similarity graph. Stage~2 trains a semantic multiple-instance objective on the text-side adapter only, which leaves the classification output unchanged by construction. Trained without test-set access and compared with VadCLIP retrained under the same protocol over three seeds, our method improves UCF-Crime AUC by \ucfGainMean{} points and XD-Violence AP by \xdGainMean{} points, with positive paired differences on every seed. Attribution experiments trace the first gain to pre-pooling variation and the second to semantic post-training.
+CLIP-based weakly supervised video anomaly detectors resample each training video to a fixed length before any temporal modelling, and segment-mean aggregation suppresses the local temporal variation inside long videos. Optimizing an additional semantic objective over the whole network also perturbs the classification pathway on which other predictions depend. We address both problems by deciding where refinement is applied. Pre-aggregation temporal refinement computes snippet differences on the raw sequence, aggregates them with the same segment boundaries as the appearance features, and injects them through a zero-initialized low-rank residual. Pathway-restricted semantic adaptation optimizes a semantic multiple-instance objective only on the semantic-side adapter, after the classification and semantic pathways separate, so the classification output is preserved. Built on VadCLIP and compared with VadCLIP retrained under the same fixed-epoch protocol and matched seeds, the method improves UCF-Crime AUC by \ucfGainMean{} points and XD-Violence AP by \xdGainMean{} points, with positive paired differences on all three seeds. Under VadCLIP's official training setting, the XD-Violence gain is \offGainMean{}$\pm$\offGainSd{} points, positive on \offGainPos{} runs. The method adds \pvrParams{} parameters and increases inference latency by \cxUcfLatRel--\cxXdLatRel\%.
 \end{abstract}
 
+\begin{IEEEkeywords}
+video anomaly detection, weak supervision, intelligent surveillance, vision-language models, lightweight adaptation
+\end{IEEEkeywords}
+
 \input{sections/introduction}
-
 \input{sections/related_work}
-
 \input{sections/method}
 \input{sections/experiments}
-
 \input{sections/conclusion}
 
-\bibliographystyle{plain}
+\bibliographystyle{IEEEtran}
 \bibliography{../refs/references}
-
-\input{sections/appendix}
 
 \end{document}

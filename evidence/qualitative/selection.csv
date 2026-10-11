@@ -1,0 +1,4 @@
+rank,test_index,video,label,delta_ap,n_candidates
+1,28,City.Of.Men.2007__#01-17-27_01-17-59_label_B2-0-0__0,B2-0-0,0.3430,475
+2,208,Tropa.de.Elite.2.2010__#01-33-01_01-33-30_label_B2-0-0__0,B2-0-0,0.3247,475
+3,172,Spectre.2015__#02-15-30_02-16-05_label_G-0-0__0,G-0-0,0.2568,475

@@ -1,0 +1,25 @@
+{
+  "mode": "baseline",
+  "seed": 234,
+  "device": "cuda",
+  "checkpoint": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\results_xd\\seed234\\B0_clean\\model\\epoch10.pth",
+  "checkpoint_sha256": "2878bccee2d482fca01523d40ccfff5ea45e35835ecc6374926990bc12950cbf",
+  "videos": 800,
+  "raw_clip_length_sum": 145706,
+  "expanded_frame_count": 2331296,
+  "gt_frame_count": 2331296,
+  "AUC1": 0.9395335112438216,
+  "AP1": 0.8050514741152941,
+  "AUC2": 0.9418228771329521,
+  "AP2": 0.7971180405977701,
+  "dMAP": 22.648841254933238,
+  "dMAP_by_iou": {
+    "0.1": 35.65465613897153,
+    "0.2": 28.23661490606832,
+    "0.3": 21.193369700052674,
+    "0.4": 16.117467303007132,
+    "0.5": 12.04209822656652
+  },
+  "primary_metric": "AP2",
+  "inference_seconds": 70.57351469993591
+}

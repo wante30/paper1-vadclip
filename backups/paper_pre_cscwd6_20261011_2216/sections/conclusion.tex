@@ -1,0 +1,6 @@
+% Conclusion.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We changed VadCLIP in two places, each targeting one design choice. Computing temporal variation before fixed-length pooling improves the classification output on UCF-Crime, and the same variation computed after pooling lowers it below the baseline. Confining a semantic multiple-instance objective to the text-side adapter improves the semantic output on XD-Violence and leaves the classification output unchanged. Both gains are consistent across seeds under training without test-set access, and attribution experiments assign each to its stage. Under VadCLIP's official training script, the XD-Violence gain is \offGainMean{} AP points and positive on every seed, so the improvement is not specific to the test-independent protocol.

@@ -1,0 +1,7 @@
+method,cite_key,ucf_auc,xd_ap,source,note
+Sultani et al.,sultani2018real,84.14,75.18,"VadCLIP arXiv 2308.11681v3 src aaai24.tex Tab. tabxd l.367 / tabucf l.396","as reported by VadCLIP, CLIP features"
+Wu et al. (HL-Net),wu2020xdviolence,84.57,80.00,"VadCLIP arXiv 2308.11681v3 src aaai24.tex Tab. tabxd l.368 / tabucf l.397","as reported by VadCLIP, CLIP features"
+RTFM,tian2021rtfm,85.66,78.27,"VadCLIP arXiv 2308.11681v3 src aaai24.tex Tab. tabxd l.369 / tabucf l.399","as reported by VadCLIP, CLIP features"
+UR-DMU,zhou2023urdmu,86.75,82.41,"VadCLIP arXiv 2308.11681v3 src aaai24.tex Tab. tabxd l.371 / tabucf l.400","as reported by VadCLIP (listed as DMU), CLIP features"
+CLIP-TSA,joo2023cliptsa,87.58,82.17,"VadCLIP arXiv 2308.11681v3 src aaai24.tex Tab. tabxd l.372 / tabucf l.402","as reported by VadCLIP, CLIP features"
+VadCLIP,wu2024vadclip,88.02,84.51,"VadCLIP arXiv 2308.11681v3 src aaai24.tex Tab. tabxd l.373 / tabucf l.403","reported; official script with per-epoch test-set checkpoint selection"

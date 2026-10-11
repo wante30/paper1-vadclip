@@ -6,62 +6,27 @@
 \subsection{Setup}
 \label{sec:setup}
 
-\paragraph{Datasets and metrics.}
-We use UCF-Crime~\cite{sultani2018real} and XD-Violence~\cite{wu2020xdviolence} with the CLIP snippet features, splits, and frame-level ground truth released with VadCLIP~\cite{wu2024vadclip}. The test sets contain 290 and 800 videos. Following VadCLIP, the headline metric is frame-level AUC of $s^{(1)}$ on UCF-Crime and frame-level AP of $p$ on XD-Violence. Because the two datasets are headlined on different outputs, we also report the other output on each dataset.
+We use UCF-Crime~\cite{sultani2018real} (290 test videos) and XD-Violence~\cite{wu2020xdviolence} (800 test videos) with the CLIP features, splits, and frame-level ground truth released with VadCLIP. Following VadCLIP, we report frame-level AUC of $s^{(1)}$ on UCF-Crime and frame-level AP of $p$ on XD-Violence. Controlled experiments and ablations use a test-independent fixed-epoch protocol with matched seeds: every model is trained for a fixed number of epochs and the final checkpoint is evaluated. Each condition is run with seeds 234, 235, and 236, which share initialization and sample order across arms, and we report mean$\pm$SD, the paired difference per seed, and the number of positive seeds. We additionally evaluate the final method using VadCLIP's official training script.
 
-\paragraph{Training protocol.}
-The released VadCLIP training script evaluates the model on the test set after every epoch, keeps the checkpoint with the best test AP, and reloads it before the next epoch. We train every model for a fixed 10 epochs and evaluate the final checkpoint, so training and checkpoint selection use training data only. All other settings follow the released configuration of each dataset. Each condition is trained with seeds 234, 235, and 236. Runs that share a seed share initialization and sample order, and we report paired differences per seed together with the number of seeds on which the difference is positive.
+\subsection{Main Results}
+\label{sec:main}
 
-With our evaluator, VadCLIP's released checkpoints reach \ucfOfficial{} AUC on UCF-Crime and \xdOfficial{} AP on XD-Violence. The XD-Violence value is within \xdReadmeGap{} points of the \xdReadmeAp{} reported in the VadCLIP repository. VadCLIP retrained under our protocol reaches \ucfRetrained{} AUC and \xdBase{} AP, and all comparisons below use this retrained baseline. Appendix~\ref{app:protocol} analyses the difference between the two protocols.
+\input{tables/tab_main}
 
-\subsection{Comparison with published methods}
-\label{sec:sota}
+Table~\ref{tab:main} places our results in the context of published CLIP-feature methods and reports the matched comparison. Against VadCLIP retrained under the same protocol and seeds, our method improves UCF-Crime AUC by \ucfGainMean{}$\pm$\ucfGainSd{} points and XD-Violence AP by \xdGainMean{}$\pm$\xdGainSd{} points, and the paired gain is positive on every seed for both datasets. The two gains come from different designs: Stage~2 leaves $s^{(1)}$ unchanged, so the UCF-Crime gain is produced by Stage~1, whereas Stage~1 alone changes XD-Violence AP by only \xdStageOneMean{} points and the XD-Violence gain is produced by Stage~2.
 
-% TBD: domain comparison table (tab:sota). Reported numbers from original papers only,
-% with feature backbone and protocol notes; our row = controlled mean +- SD.
-Table~\ref{tab:sota} (TBD) lists published results as reported by their authors. Published numbers are taken from the corresponding papers under their respective training and model-selection protocols, and our row is the three-seed mean under the protocol described above.
-
-\subsection{Controlled comparison}
-\label{sec:controlled}
-
-\input{tables/tab_controlled}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figures/fig_paired.pdf}
-  \caption{Paired per-seed results under the test-independent protocol. Each line connects the two arms of one seed; the title gives the mean paired difference in points and the number of positive seeds. Left to right: full method against retrained VadCLIP on UCF-Crime (AUC) and XD-Violence (AP), pre- against post-aggregation variation in Stage~1, and Stage~2 against the equal-budget control with $\lambda = 0$.}
-  \label{fig:paired}
-\end{figure}
-
-Table~\ref{tab:controlled} compares our method with VadCLIP retrained under the same protocol and seeds. On UCF-Crime, AUC improves by \ucfGainMean{} points ($\pm$\ucfGainSd, \ucfGainPos{} seeds). On XD-Violence, AP improves by \xdGainMean{} points ($\pm$\xdGainSd, \xdGainPos{} seeds). Both arms of each pair share initialization and sample order, so the paired difference removes variation common to a seed, and it is positive on every seed for both datasets (Fig.~\ref{fig:paired}). The XD-Violence gain is on the semantic output that VadCLIP uses for its XD-Violence headline, and AP of $s^{(1)}$ changes by \xdApOneChangeMean{} points.
-
-\subsection{Stage 1: where variation is computed}
+\subsection{Mechanism Ablations}
 \label{sec:ablation}
 
-\input{tables/tab_stage1}
+\input{tables/tab_ablation}
 
-Stage~1 produces the UCF-Crime gain, since Stage~2 leaves $s^{(1)}$ unchanged by construction. Table~\ref{tab:stage1} isolates the placement of the difference. We train Stage~1 with variation computed after aggregation, $D'_j = \lvert A_j - A_{j-1} \rvert$, and keep every other setting fixed. This variant falls below the baseline by \postBaseMean{} points on every seed, whereas computing variation before aggregation is better than after it by \prePostMean{} AUC points ($\pm$\prePostSd, \prePostPos{} seeds). The position of the difference relative to pooling therefore determines the gain. The two variants receive identical inputs on videos shorter than $T$, which are only padded, and differ on the long training videos that are averaged (Sec.~\ref{sec:pvr}) and at test-window boundaries.
+\textbf{Where temporal variation is extracted.} Table~\ref{tab:ablation}(a) computes the same difference after aggregation, $D'_j = \lvert A_j - A_{j-1} \rvert$, with every other setting fixed. This comparison isolates the position of the difference relative to pooling. Post-aggregation variation falls below the baseline on every seed (\postBaseMean{} points), while pre-aggregation variation exceeds it by \prePostMean{}$\pm$\prePostSd{} AUC points (\prePostPos{} seeds). The benefit therefore comes from preserving within-segment change, not from adding a difference stream as such.
 
-On XD-Violence, Stage~1 alone changes AP by \xdStageOneMean{} points (\xdStageOnePos{} seeds).
-\subsection{Stage 2: semantic post-training}
-\label{sec:stage2}
+\textbf{Where semantic optimization is applied.} Table~\ref{tab:ablation}(b) compares Stage~2 with an equal-budget control C that runs the same epochs from the same checkpoint and sample order with $\lambda=0$. The restricted semantic objective adds \tMinusCMean{}$\pm$\tMinusCSd{} AP points over C (\tMinusCPos{} seeds), so the gain comes from the objective rather than from extra training. Applied directly to the retrained VadCLIP, Stage~2 improves AP by \bzTMean{}$\pm$\bzTSd{} points (\bzTPos{} seeds), which attributes the XD-Violence gain to Stage~2; placing Stage~1 before it changes AP by a further \tMinusBzTMean{} points. During Stage~2, $s^{(1)}$ on a fixed probe batch did not change and no parameter outside $\mathrm{mlp}_1$ was updated.
 
-\input{tables/tab_stage2}
+\subsection{Robustness and Efficiency}
+\label{sec:robust}
 
-An equal-budget control isolates the semantic objective. The control C runs the same three epochs from the same checkpoint and sample order with $\lambda = 0$, and the semantic objective adds \tMinusCMean{} AP points over it ($\pm$\tMinusCSd, \tMinusCPos{} seeds). Applied directly to the retrained VadCLIP, Stage~2 improves AP by \bzTMean{} points ($\pm$\bzTSd, \bzTPos{} seeds), so the XD-Violence gain of the full method is attributable to Stage~2. Placing Stage~1 before it changes AP by a further \tMinusBzTMean{} points (\tMinusBzTPos{} seeds). On UCF-Crime, Stage~2 changes AP of $p$ by \ucfApTwoStageTwoMean{} points.
+Under VadCLIP's official training setting, XD-Violence AP improves from \offBase{}$\pm$\offBaseSd{} to \offOurs{}$\pm$\offOursSd{}, with a paired gain of \offGainMean{}$\pm$\offGainSd{} points and \offGainPos{} positive runs. The improvement therefore persists beyond our protocol. Absolute values differ between the two settings, so each comparison is made within one setting.
 
-Throughout Stage~2 training, the maximum change of $s^{(1)}$ on a fixed probe batch was zero and no parameter outside $\mathrm{mlp}_1$ changed.
-
-\subsection{Complexity}
-\label{sec:complexity}
-
-\input{tables/tab_complexity}
-
-Stage~1 adds \pvrParams{} parameters and Stage~2 adds none. On an \cxGpu{}, inference latency rises by \cxUcfLatRel\% on UCF-Crime and \cxXdLatRel\% on XD-Violence, and peak memory by at most \cxUcfMemDelta{} MB (Table~\ref{tab:complexity}).
-
-\subsection{Qualitative results}
-\label{sec:qualitative}
-
-% TBD: F3 temporal score curves, videos chosen by the pre-registered quantile rule
-% (evidence/figure_selection_rule.md).
-TBD.
+The method adds \pvrParams{} parameters, increases inference latency by \cxUcfLatRel--\cxXdLatRel\%, and adds at most \cxUcfMemDelta{}~MB peak memory, measured on an \cxGpu{} per window of 256 snippets. This overhead keeps the detector suitable for lightweight surveillance deployment.

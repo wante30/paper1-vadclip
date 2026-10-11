@@ -94,6 +94,8 @@ XD,official_adapt,RT,AP2,2,234;235
 XD,official_adapt,RT,AUC1,2,234;235
 XD,official_adapt,RT,AUC2,2,234;235
 XD,official_adapt,RT,dMAP_avg,2,234;235
+XD,official_rerun,B0,AP2,3,234;235;236
+XD,official_rerun,T,AP2,3,234;235;236
 XD,released_final,AE,AP1,3,234;235;236
 XD,released_final,AE,AP2,3,234;235;236
 XD,released_final,AE,AUC1,3,234;235;236

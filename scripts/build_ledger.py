@@ -105,6 +105,19 @@ def collect_xd():
             add("XD", "released_final", cond, s, rel, f"runs.{s}.{cond}.final_epoch_metrics")
 
 
+MANUAL = OUT / "manual" / "xd_official_protocol_remote4090.csv"
+
+
+def collect_manual():
+    """Hand-entered results (remote 4090 official-protocol rerun) until metrics.json files are pulled in."""
+    sources.setdefault(str(MANUAL), sha256(MANUAL))
+    with MANUAL.open(encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            rows.append({"dataset": r["dataset"], "protocol": r["protocol"], "condition": r["condition"],
+                         "seed": r["seed"], "metric": r["metric"], "value": repr(float(r["value_pct"]) / 100),
+                         "source": str(MANUAL), "keypath": "", "note": "manual: " + r["note"]})
+
+
 # (dataset, metric, (protocol_a, cond_a), (protocol_b, cond_b)) -> delta = a - b, in pp
 DELTAS = [
     ("UCF", "AUC1", ("clean", "AE"), ("clean", "B0")),
@@ -138,6 +151,7 @@ DELTAS = [
     ("XD", "AP2", ("official_adapt", "RC"), ("official", "R")),
     ("XD", "AP2", ("official_adapt", "RT"), ("official", "R")),
     ("XD", "AP2", ("official_adapt", "RT"), ("official_adapt", "RC")),
+    ("XD", "AP2", ("official_rerun", "T"), ("official_rerun", "B0")),
 ]
 
 
@@ -253,6 +267,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     collect_ucf()
     collect_xd()
+    collect_manual()
     table = lookup()
     if len(table) != len(rows):
         raise RuntimeError("duplicate (dataset, protocol, condition, seed, metric) keys in ledger")

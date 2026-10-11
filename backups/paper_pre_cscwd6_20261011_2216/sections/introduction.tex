@@ -1,0 +1,19 @@
+% Introduction. Numbers via macros; claims follow evidence/discrepancies.md.
+
+\section{Introduction}
+\label{sec:intro}
+
+Weakly supervised video anomaly detection learns to localize abnormal events in time from video-level labels alone. Current methods start from frozen snippet features, most often from CLIP~\cite{radford2021clip}, and train a light temporal model on top with a multiple-instance objective~\cite{sultani2018real}. VadCLIP~\cite{wu2024vadclip} extends this design with a second output that aligns snippets with learnable class prompts, and it is a common base for recent work~\cite{yang2024tpwng,wu2024stprompt}.
+
+Two design choices in this pipeline limit what the model can learn. The first concerns the input. Before any learning, each training video is resampled to a fixed length, and long videos are mean-pooled over uniform segments. On the training sets we use, this affects \ucfTrainAvgFrac\% of UCF-Crime and \xdTrainAvgFrac\% of XD-Violence items. Pooling averages away the changes between snippets inside a segment, and differencing the pooled sequence measures change between segment means. The second concerns the objective. VadCLIP's semantic output is computed downstream of its classification output, and both read the same representation. Adding a semantic multiple-instance loss to the whole network therefore also moves the classification output. In a single-seed run, doing so raised XD-Violence AP by \fullGXdApTwo{} points and changed UCF-Crime AUC by \fullGUcfAucOne{} points.
+
+We address the two choices in two training stages. Stage~1 computes the absolute difference between consecutive raw snippets before pooling, aggregates it with the same segment boundaries as the appearance features, and injects it through a zero-initialized low-rank residual. It also mixes VadCLIP's similarity graph with a sparse $k$-nearest-neighbour graph. Stage~2 optimizes the semantic multiple-instance loss with respect to VadCLIP's text-side adapter only. That adapter lies downstream of the classification output, which is therefore unchanged by construction.
+
+We train and select checkpoints on training data only, retrain VadCLIP under the same protocol, and report paired differences over three seeds. Our method improves UCF-Crime AUC by \ucfGainMean{} points and XD-Violence AP by \xdGainMean{} points, with the same sign on every seed. Repeating the XD-Violence comparison with VadCLIP's official training script gives a gain of \offGainMean{} AP points ($\pm$\offGainSd, \offGainPos{} seeds), so the gain has the same direction under both protocols. The same variation computed after pooling falls below the baseline on every seed, and an equal-budget control attributes the Stage~2 gain to the semantic objective. Attribution experiments locate the UCF-Crime gain in Stage~1 and the XD-Violence gain in Stage~2.
+
+Our contributions are as follows.
+\begin{itemize}
+  \item We show that temporal variation computed before fixed-length pooling improves a CLIP-based detector where the same variation computed after pooling degrades it, and we inject it through a residual that adds \pvrParams{} parameters.
+  \item We restrict semantic post-training to the part of VadCLIP downstream of its classification output. The semantic output improves, the classification output is preserved exactly, and the parameter count is unchanged.
+  \item We evaluate both stages in a matched multi-seed comparison with an equal-budget control and component attribution, training and selecting checkpoints on training data only, and confirm the XD-Violence gain under VadCLIP's official training protocol.
+\end{itemize}
