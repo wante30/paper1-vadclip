@@ -1,65 +1,7 @@
-% F1 (6-page version): two panels. Blue = added in Stage 1, orange = updated in Stage 2, grey = VadCLIP (frozen in Stage 2).
+% AI-reference preview for Fig.1 (cross-column).
 \begin{figure*}[t]
-\centering
-\begin{tikzpicture}[
-  font=\footnotesize, >=Stealth,
-  box/.style={draw, rounded corners=2pt, minimum height=6.5mm, inner sep=2.5pt, align=center},
-  new/.style={box, fill=blue!12},
-  trn/.style={box, fill=orange!35, very thick},
-  frz/.style={box, fill=gray!12},
-  op/.style={draw, circle, inner sep=0.8pt, fill=white},
-  tag/.style={font=\footnotesize\bfseries, inner sep=1.5pt},
-  lab/.style={font=\scriptsize, inner sep=1pt}]
-
-  % ---------------- Panel (a) ----------------
-  \node[frz] (X) at (0,0) {Raw\\snippets $X$};
-  \node[new] (D) at (2.1,0.75) {$\lvert X_t - X_{t-1}\rvert$};
-  \node[frz] (AggA) at (3.9,-0.75) {$\mathrm{Agg}$};
-  \node[new] (AggV) at (3.9,0.75) {$\mathrm{Agg}$};
-  \node[new] (R) at (5.5,0.75) {zero-init\\residual};
-  \node[op] (plus) at (5.5,-0.75) {$+$};
-  \node[frz] (Enc) at (7.3,-0.75) {temporal\\model};
-  \node[box] (h) at (8.6,-0.75) {$h$};
-  \draw[->] (X.east) -- ++(0.25,0) |- (D.west);
-  \draw[->] (X.east) -- ++(0.25,0) |- (AggA.west);
-  \draw[->] (D) -- (AggV);
-  \draw[->] (AggV) -- node[lab, above] {$V$} (R);
-  \draw[->] (R) -- node[lab, right] {$\beta$} (plus);
-  \draw[->] (AggA) -- node[lab, above] {$A$} (plus);
-  \draw[->] (plus) -- node[lab, above] {$Z$} (Enc);
-  \draw[->] (Enc) -- (h);
-  % sparse kNN callout
-  \node[new, dashed, font=\scriptsize] (knn) at (7.3,0.65) {sparse $k$NN\\graph mix};
-  \draw[->, dashed] (knn) -- (Enc);
-  % emphasis: before aggregation
-  \begin{scope}[on background layer]
-    \node[draw=blue!60, thick, dashed, rounded corners=3pt, fit=(D)(AggV), inner sep=3pt,
-          label={[tag, text=blue!60!black]above:Before Aggregation}] {};
-  \end{scope}
-  \node[font=\small] at (4.3,-2.15) {(a) Earlier temporal refinement (Stage~1)};
-
-  % ---------------- Panel (b) ----------------
-  \begin{scope}[xshift=10.3cm]
-    \node[box] (h2) at (0,-0.1) {shared\\$h$};
-    \coordinate (split) at (0.9,-0.1);
-    \node[frz] (cls) at (2.6,0.75) {classification branch\\$f_{\mathrm{cls}}, \mathrm{mlp}_2$ [frozen]};
-    \node[box] (s1) at (4.9,0.75) {$s^{(1)}$};
-    \node[trn] (mlp1) at (2.6,-0.95) {semantic branch\\$\mathrm{mlp}_1$ [updated]};
-    \node[box] (p) at (4.9,-0.95) {$s^{(2)}\!\rightarrow p$};
-    \draw[-] (h2) -- (split);
-    \draw[->] (split) |- (cls.west);
-    \draw[->] (split) |- (mlp1.west);
-    \draw[->] (cls) -- (s1);
-    \draw[->] (mlp1) -- (p);
-    \draw[->, gray] (s1.south) -- node[lab, right, text=gray!70!black] {pooling $a$} (s1.south |- mlp1.north east);
-    \node[lab, text=orange!70!black, align=left] (loss) at (6.6,-0.95) {$\mathcal{L}_{\mathrm{CLASM}}$\\$+\lambda\mathcal{L}_{G}$};
-    \draw[->, dashed, orange!70!black] (p) -- (loss);
-    \draw[->, dashed, orange!70!black] (loss.south) -- ++(0,-0.3) -| node[lab, pos=0.25, below] {gradient to $\mathrm{mlp}_1$ only} (mlp1.south);
-    \node[tag, text=orange!60!black, fill=white, draw=orange!60, dashed, rounded corners=2pt] at (0.9,1.35) {After Pathway Separation};
-    \draw[orange!60, dashed] (0.9,1.1) -- (split);
-    \node[font=\small] at (3.2,-2.15) {(b) Later semantic adaptation (Stage~2)};
-  \end{scope}
-\end{tikzpicture}
-\caption{Overview. (a) Stage~1 extracts snippet differences \emph{before} fixed-length aggregation, pools them with the same segment boundaries as the appearance features, and fuses them through a zero-initialized residual; a sparse $k$NN graph mix refines the similarity branch. (b) Stage~2 restricts the semantic objective to $\mathrm{mlp}_1$, which lies \emph{after} the classification and semantic pathways separate, so $s^{(1)}$ is unchanged. Blue: added in Stage~1; orange: updated in Stage~2; grey: VadCLIP, frozen in Stage~2.}
-\label{fig:overview}
+  \centering
+  \includegraphics[width=\textwidth]{../figures_src/fig1_reference.png}
+  \caption{Overview of the proposed two-stage refinement. Stage~1 preserves temporal variation before fixed-length aggregation, while Stage~2 restricts semantic adaptation to the text-side adapter so that the classification pathway remains unchanged.}
+  \label{fig:overview}
 \end{figure*}
