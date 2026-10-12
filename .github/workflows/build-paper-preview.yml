@@ -24,3 +24,5 @@ jobs:
         with:
           name: paper-fig1-wide-v2
           path: paper/main.pdf
+
+# branch preview build
