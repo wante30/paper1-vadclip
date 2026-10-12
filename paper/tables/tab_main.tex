@@ -3,7 +3,7 @@
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
-\caption{Results on UCF-Crime (AUC, \%) and XD-Violence (AP, \%) with CLIP features. Published rows are taken from VadCLIP~\cite{wu2024vadclip} and serve as benchmark context; each follows its own training protocol. Method claims rest on the matched comparison: mean$\pm$SD over three seeds, paired $\Delta$ per seed, number of positive seeds in parentheses.}
+\caption{Results on UCF-Crime (AUC, \%) and XD-Violence (AP, \%) with CLIP features. Published rows are taken from VadCLIP~\cite{wu2024vadclip} and serve as benchmark context; each follows its own training protocol. Method claims rest on the matched comparison: mean$\pm$SD over three seeds, paired $\Delta$ per seed, number of positive seeds in parentheses. The bottom block repeats the matched comparison under VadCLIP's official script, which selects the checkpoint on the test set; per-seed values are in Table~\ref{tab:official}. Only rows within a block are directly comparable.}
 \label{tab:main}
 \begin{tabular}{lcc}
 \toprule
@@ -18,6 +18,10 @@ VadCLIP~\cite{wu2024vadclip} & 88.02 & 84.51 \\
 VadCLIP, retrained & 86.25$\pm$0.83 & 77.57$\pm$2.19 \\
 Ours & 86.53$\pm$0.85 & 79.23$\pm$1.87 \\
 Paired $\Delta$ & +0.28$\pm$0.15 (3/3) & +1.66$\pm$0.34 (3/3) \\
+\midrule
+\multicolumn{3}{l}{\emph{VadCLIP's official script (best-epoch selection)}} \\
+VadCLIP, retrained & -- & 82.91$\pm$1.23 \\
+Ours & -- & 83.63$\pm$1.18 \\
 \bottomrule
 \end{tabular}
 \end{table}

@@ -22,9 +22,16 @@ and aggregate it with the same segment boundaries as appearance, $A = \mathrm{Ag
   Z = A + \beta\, W_2\, \mathrm{GELU}\big(W_1\, \mathrm{LN}(V)\big),
   \label{eq:pvr}
 \end{equation}
-with $W_1 \in \mathbb{R}^{128 \times d}$, $W_2 \in \mathbb{R}^{d \times 128}$, and $\beta = 0.2$. $W_2$ and its bias are zero-initialized, so training starts exactly from VadCLIP. $Z$ replaces $A$ as the input of the temporal model and therefore reaches both outputs. This design preserves within-segment variation at a cost of \pvrParams{} parameters.
+with $W_1 \in \mathbb{R}^{128 \times d}$, $W_2 \in \mathbb{R}^{d \times 128}$, and $\beta = 0.2$. $Z$ replaces $A$ as the input of the temporal model and therefore reaches both outputs, at a cost of \pvrParams{} parameters.
 
-\textbf{Sparse neighbourhood refinement.} As a supporting refinement within Stage~1, we sharpen VadCLIP's similarity graph. Its thresholded softmax still assigns weight $e^0$ to every zeroed entry, so each snippet stays connected to all others. We mix it with a sparse $k$-nearest-neighbour graph, $G = (1-\alpha)\,G_{\mathrm{orig}} + \alpha\,\mathrm{softmax}(M_k(S))$, where $S$ is the cosine similarity matrix and $M_k$ keeps the $k$ largest entries per row; we use $k=16$ and $\alpha=0.25$. No parameters are added.
+The key distinction from an ordinary temporal difference is the order of operations. Segment-level averaging preserves the mean appearance of a segment but not its internal dynamics: two segments can have nearly identical averaged features while one is static and the other contains an abrupt motion. A difference computed after aggregation, $\lvert A_j - A_{j-1} \rvert$, only compares these means and cannot recover what the average discarded. Because $\mathrm{Agg}$ is linear, $\mathrm{Agg}(D)$ is the mean absolute change inside each segment, which is exactly the quantity the post-aggregation difference loses. Sharing the segment boundaries with $A$ keeps the two streams aligned step by step, so the residual can be read as a per-step correction to appearance rather than a separate signal. On videos shorter than $T$, which are only padded, $\mathrm{Agg}$ is the identity and the two orders coincide; the design therefore changes the model only where pooling actually removes information. The residual form, the low rank, and the zero-initialized $W_2$ and bias make training start exactly from the VadCLIP representation and learn the contribution of variation progressively, so the baseline remains reachable if variation is uninformative.
+
+\textbf{Sparse neighbourhood refinement.} As a supporting refinement within Stage~1, we sharpen VadCLIP's similarity graph. VadCLIP thresholds the cosine similarities and normalizes each row with a softmax, but a thresholded entry still receives weight $e^0$ in the softmax, so each snippet stays weakly connected to every other snippet in the window. In long videos these residual weights accumulate over many unrelated snippets and dilute the contribution of the few similar ones. We mix the original graph with a sparse $k$-nearest-neighbour graph,
+\begin{equation}
+  G = (1-\alpha)\,G_{\mathrm{orig}} + \alpha\,\mathrm{softmax}\big(M_k(S)\big),
+  \label{eq:knn}
+\end{equation}
+where $S$ is the cosine similarity matrix and $M_k$ keeps the $k$ largest entries per row and masks the rest to $-\infty$; we use $k=16$ and $\alpha=0.25$. Mixing rather than replacing keeps VadCLIP's global context, while the sparse term gives each snippet a local neighbourhood whose size does not grow with window length. Both terms are row-stochastic, so $G$ remains a valid propagation matrix, and no parameters are added. We treat this as a supporting component of Stage~1 rather than a separate contribution.
 
 \subsection{Pathway-Restricted Semantic Adaptation}
 \label{sec:isa}
@@ -34,7 +41,15 @@ VadCLIP trains $s^{(2)}$ with the class-level CLASM objective. We add a binary m
   \mathcal{L} = \mathcal{L}_{\mathrm{CLASM}} + \lambda\, \mathrm{BCE}(q, y), \qquad \lambda = 0.1.
   \label{eq:isa}
 \end{equation}
-Optimized over the whole network, this objective also changes $h$ and hence $s^{(1)}$. Stage~2 starts from the Stage~1 model and optimizes Eq.~\eqref{eq:isa} with respect to $\mathrm{mlp}_1$ only, with all other parameters frozen. Because $s^{(1)}$ is independent of $\mathrm{mlp}_1$, the restricted update prevents any change to the classification pathway while the semantic output adapts. Stage~2 adds no parameters and no inference cost.
+CLASM supervises which class a video belongs to, whereas the binary term supervises whether its most anomalous snippets are anomalous at all, which is the quantity $p$ is evaluated on. Optimized over the whole network, however, this objective also changes $h$ and hence $s^{(1)}$, so a gain on the semantic output can be paid for on the classification output.
+
+Stage~2 avoids this by restricting the update to a subgraph. In VadCLIP's computation, $h$ and $a$ are computed before the text-side adapter and $s^{(1)}$ reads only $h$, so
+\begin{equation}
+  \frac{\partial s^{(1)}}{\partial \theta_{\mathrm{mlp1}}} = 0, \qquad
+  \frac{\partial s^{(2)}_{j,c}}{\partial \theta_{\mathrm{mlp1}}} = \frac{\partial s^{(2)}_{j,c}}{\partial t_c}\,\frac{\partial t_c}{\partial \theta_{\mathrm{mlp1}}} \neq 0 .
+  \label{eq:grad}
+\end{equation}
+Stage~2 starts from the Stage~1 model and optimizes Eq.~\eqref{eq:isa} with respect to $\theta_{\mathrm{mlp1}}$ only, with all other parameters frozen. With the parameters before the branch point fixed, $h$, $a$, and $s^{(1)}$ are identical before and after Stage~2, and the semantic output changes only through the refined class prompts $t_c$. The parameter restriction is therefore determined by the computational dependency of VadCLIP rather than by parameter efficiency alone: because the classification output does not depend on the text-side adapter, updating this adapter can modify semantic predictions without modifying classification scores. This lets us add semantic supervision while preserving the original classifier pathway exactly, instead of trading one output against the other through a loss weight. The adapter already exists in VadCLIP, so Stage~2 adds no parameters and no inference cost.
 
 \subsection{Implementation Details}
 \label{sec:impl}
