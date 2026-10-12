@@ -7,6 +7,9 @@ Video anomaly detection supports intelligent surveillance and safety monitoring,
 
 We identify two problems of placement in this pipeline. First, the temporal cue is extracted too late. Each training video is mapped to a fixed length before learning, and long videos are mean-pooled over uniform segments, which affects \ucfTrainAvgFrac\% of UCF-Crime and \xdTrainAvgFrac\% of XD-Violence training videos. Pooling averages away the change between snippets inside a segment, and any difference taken afterwards measures change between segment means. Second, semantic optimization is applied too broadly. VadCLIP's semantic output depends on its classification output, and both read the same representation, so a semantic objective trained over the whole network also moves the classification output.
 
+% Cross-column overview: declared early so IEEEtran can place it at the top of page 2.
+\input{figures/fig_overview}
+
 The key question is therefore where refinement is applied: temporal cues should be preserved before aggregation, while semantic adaptation should be restricted after the prediction pathways separate. We follow this principle with two designs. Pre-aggregation temporal refinement computes snippet differences on the raw sequence, aggregates them with the same boundaries as the appearance stream, and adds them through a zero-initialized low-rank residual, with a sparse neighbourhood refinement of the similarity graph as support. Pathway-restricted semantic adaptation optimizes a semantic multiple-instance objective only on VadCLIP's text-side adapter, which lies after the pathway split, so the classification output is unchanged.
 
 The two designs look unrelated as operations, but they are the same intervention read at two ends of one computation graph. VadCLIP's graph has a single entry point, where snippet features are resampled to a fixed length, and a single branch point, where a shared representation splits into a classification score and a prompt-aligned semantic score. Information destroyed at the entry point cannot be recovered by any later module, and a gradient admitted before the branch point necessarily reaches both outputs. Stage~1 acts on the entry point so that within-segment dynamics survive into the model at all; Stage~2 acts past the branch point so that a semantic objective changes only the output it is meant to change. Neither stage alters VadCLIP's layers, objectives for the existing outputs, or evaluation pathway. What we tune is the position at which information enters and the subgraph a gradient is allowed to traverse, which is why the two stages mainly improve different outputs.
@@ -18,5 +21,3 @@ Compared with VadCLIP retrained under the same protocol and matched seeds, our m
   \item \emph{Controlled validation.} We evaluate both designs with matched multi-seed comparisons and mechanism controls, and confirm robustness under VadCLIP's official training setting.
 \end{itemize}
 
-% Cross-column overview placed after the introduction so it floats to the top of the next page.
-\input{figures/fig_overview}
