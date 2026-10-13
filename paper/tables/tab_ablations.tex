@@ -1,0 +1,31 @@
+\begin{table}[t]
+\centering
+\caption{Component and mechanism ablations (\%). Panel (a) uses seeds 234/235; panels (b,c) use 234--236. All values are means. $\Delta$ is relative to the baseline within each panel. C and full Stage 2 share the checkpoint, sample order and three-epoch budget, differing only in $\lambda$.}
+\label{tab:ablations}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrr}\toprule
+\multicolumn{3}{l}{\textbf{(a) Stage 1 components: UCF AUC$_1$}}\\
+Variant & AUC & $\Delta$\\\midrule
+VadCLIP & 86.44 & -- \\
++ PVR & 86.69 & +0.25 \\
++ PVR + kNN & 86.80 & +0.36 \\
+\midrule
+\multicolumn{3}{l}{\textbf{(b) Variation placement: UCF AUC$_1$}}\\
+Variant & AUC & $\Delta$\\\midrule
+VadCLIP & 86.25 & -- \\
+Post-aggregation + kNN & 85.86 & -0.39 \\
+Pre-aggregation + kNN & 86.53 & +0.28 \\
+\bottomrule\end{tabular}
+\par\vspace{6pt}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}\toprule
+\multicolumn{4}{l}{\textbf{(c) Semantic adaptation: XD-Violence}}\\
+Variant & AP$_2$ & $\Delta$ & AP$_1$\\\midrule
+VadCLIP & 77.57 & -- & 79.61 \\
+Stage 1 & 77.44 & -0.14 & 79.54 \\
+Stage 1 + CLASM (C) & 77.59 & +0.02 & 79.54 \\
+Stage 1 + Stage 2 & 79.23 & +1.66 & 79.54 \\
+VadCLIP + Stage 2 & 79.46 & +1.89 & 79.61 \\
+\bottomrule\end{tabular}
+\end{table}

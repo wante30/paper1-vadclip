@@ -1,57 +1,71 @@
-% Method. Symbols follow evidence/formula_code_audit.md.
-
 \section{Method}
-\label{sec:method}
-
-We build on VadCLIP~\cite{wu2024vadclip}, which takes frozen CLIP snippet features $X \in \mathbb{R}^{L \times d}$ ($d=512$) and maps each training video to $T=256$ steps with an operator $\mathrm{Agg}$: longer videos are mean-pooled over $T$ uniform segments and shorter ones are zero-padded. A temporal transformer and two graph branches produce a shared representation $h$. The classification output $s^{(1)} = f_{\mathrm{cls}}(h + \mathrm{mlp}_2(h))$ gives snippet anomaly logits. The semantic output pools $h$ with weights from $s^{(1)}$ into a video vector $a$, refines each class prompt with a text-side adapter, $t_c = (t^0_c + a) + \mathrm{mlp}_1(t^0_c + a)$, and scores $s^{(2)}_{j,c} = \cos(h_j, t_c)/\tau$, from which the anomaly probability $p_j = 1 - \mathrm{softmax}(s^{(2)}_j)_{\mathrm{normal}}$ follows. Following VadCLIP, UCF-Crime is reported with $s^{(1)}$ and XD-Violence with $p$. Since $s^{(1)}$ does not depend on $\mathrm{mlp}_1$, the semantic pathway can be adapted without touching the classification pathway.
-
-Our method applies refinement at two positions (Fig.~\ref{fig:overview}): temporal variation is extracted before aggregation (Stage~1), and semantic adaptation is applied after the pathways separate (Stage~2).
-
-\input{figures/fig_overview}
-
-\subsection{Pre-Aggregation Temporal Refinement}
-\label{sec:pvr}
-
-For a long training video, $\mathrm{Agg}$ averages on average \ucfBinSize{} (UCF-Crime) and \xdBinSize{} (XD-Violence) snippets per segment, so differences of the aggregated sequence only measure change between segment means. We instead compute variation on the raw snippets,
+\subsection{Dual-Output Detection Pipeline}
+Let $X\in\mathbb{R}^{L\times d}$ denote a video's raw CLIP snippet features, where $L$ is variable and $d=512$. During training, $\Agg$ maps each sequence to $T=256$ positions: sequences longer than $T$ are averaged over uniform temporal segments, and shorter sequences are zero-padded. VadCLIP's local temporal transformer, similarity graph branch, and distance graph branch transform the input into a shared representation $h\in\mathbb{R}^{T\times d}$~\cite{wu2024vadclip}. The classification logits are
 \begin{equation}
-  D_1 = 0, \qquad D_t = \lvert X_t - X_{t-1} \rvert, \quad t = 2, \dots, L,
-  \label{eq:diff}
+ s^{(1)}=f_{\mathrm{cls}}\big(h+\mlp_2(h)\big).
+ \label{eq:classifier}
 \end{equation}
-and aggregate it with the same segment boundaries as appearance, $A = \mathrm{Agg}(X)$ and $V = \mathrm{Agg}(D)$, so both streams stay aligned at training and test time. The variation enters through a low-rank residual,
-\begin{equation}
-  Z = A + \beta\, W_2\, \mathrm{GELU}\big(W_1\, \mathrm{LN}(V)\big),
-  \label{eq:pvr}
-\end{equation}
-with $W_1 \in \mathbb{R}^{128 \times d}$, $W_2 \in \mathbb{R}^{d \times 128}$, and $\beta = 0.2$. $Z$ replaces $A$ as the input of the temporal model and therefore reaches both outputs, at a cost of \pvrParams{} parameters.
+The semantic pathway uses these logits to form a normalized video vector and condition each class prompt:
+\begin{align}
+ a &= \Norm\!\left(\sum_j s^{(1)}_j h_j\right), \label{eq:pool}\\
+ u_c &= t_c^0+a, \qquad t_c=u_c+\mlp_1(u_c), \label{eq:prompt}\\
+ s^{(2)}_{j,c}&=\frac{\cos(h_j,t_c)}{\tau},\qquad
+ p_j=1-\softmax\!\left(s^{(2)}_j\right)_{\mathrm{normal}},
+ \label{eq:semantic}
+\end{align}
+where $\Norm$ is $\ell_2$ normalization, $t_c^0$ is the encoded class prompt, and $\tau=0.07$. The classification output in Eq.~\eqref{eq:classifier} is independent of $\mlp_1$, while the semantic output depends on classification through $a$. This directed dependency is central to Stage~2. Following VadCLIP, the headline metrics use $s^{(1)}$ on UCF-Crime and $p$ on XD-Violence.
 
-The key distinction from an ordinary temporal difference is the order of operations. Segment-level averaging preserves the mean appearance of a segment but not its internal dynamics: two segments can have nearly identical averaged features while one is static and the other contains an abrupt motion. A difference computed after aggregation, $\lvert A_j - A_{j-1} \rvert$, only compares these means and cannot recover what the average discarded. Because $\mathrm{Agg}$ is linear, $\mathrm{Agg}(D)$ is the mean absolute change inside each segment, which is exactly the quantity the post-aggregation difference loses. Sharing the segment boundaries with $A$ keeps the two streams aligned step by step, so the residual can be read as a per-step correction to appearance rather than a separate signal. On videos shorter than $T$, which are only padded, $\mathrm{Agg}$ is the identity and the two orders coincide; the design therefore changes the model only where pooling actually removes information. The residual form, the low rank, and the zero-initialized $W_2$ and bias make training start exactly from the VadCLIP representation and learn the contribution of variation progressively, so the baseline remains reachable if variation is uninformative.
-
-\textbf{Sparse neighbourhood refinement.} As a supporting refinement within Stage~1, we sharpen VadCLIP's similarity graph. VadCLIP thresholds the cosine similarities and normalizes each row with a softmax, but a thresholded entry still receives weight $e^0$ in the softmax, so each snippet stays weakly connected to every other snippet in the window. In long videos these residual weights accumulate over many unrelated snippets and dilute the contribution of the few similar ones. We mix the original graph with a sparse $k$-nearest-neighbour graph,
+\subsection{Pre-Aggregation Variation Refinement}
+\textbf{Aligned temporal evidence.}
+For a long sequence, let $\mathcal{B}_j$ be the raw snippet indices assigned to aggregated position $j$. The appearance input is the segment mean $A_j=|\mathcal{B}_j|^{-1}\sum_{t\in\mathcal{B}_j}X_t$. To retain explicit variation statistics, we first compute
 \begin{equation}
-  G = (1-\alpha)\,G_{\mathrm{orig}} + \alpha\,\mathrm{softmax}\big(M_k(S)\big),
-  \label{eq:knn}
+ D_1=0,\qquad D_t=|X_t-X_{t-1}|,\quad t=2,\ldots,L,
+ \label{eq:variation}
 \end{equation}
-where $S$ is the cosine similarity matrix and $M_k$ keeps the $k$ largest entries per row and masks the rest to $-\infty$; we use $k=16$ and $\alpha=0.25$. Mixing rather than replacing keeps VadCLIP's global context, while the sparse term gives each snippet a local neighbourhood whose size does not grow with window length. Both terms are row-stochastic, so $G$ remains a valid propagation matrix, and no parameters are added. We treat this as a supporting component of Stage~1 rather than a separate contribution.
+with elementwise absolute value. We then aggregate both streams using the same boundaries:
+\begin{equation}
+ A=\Agg(X),\qquad V=\Agg(D).
+ \label{eq:aligned}
+\end{equation}
+Thus $V_j$ summarizes raw feature changes assigned to segment $j$, including a boundary transition when its first snippet follows another segment. Concatenating the appearance and variation channels before temporal processing keeps their positions aligned.
+
+This ordering extracts information that differences of segment means do not specify. For example, a constant feature trajectory and an alternating trajectory around the same center can have identical means but different average absolute changes. After aggregation, a temporal difference sees the means alone. Computing Eq.~\eqref{eq:variation} first exposes the variation statistic to the detector alongside appearance. In our long training sequences, aggregation averages 5.76 snippets per segment on UCF-Crime and 2.23 on XD-Violence. On shorter sequences, pre- and post-aggregation differences coincide at valid positions before padding.
+
+\textbf{Residual integration.}
+The aligned variation stream is mapped back to the appearance space with a low-rank residual:
+\begin{equation}
+ R(V)=W_2\,\mathrm{GELU}\!\left(W_1\,\mathrm{LN}(V)\right),
+ \qquad Z=A+\beta R(V),
+ \label{eq:residual}
+\end{equation}
+where the projection widths are $512\rightarrow128\rightarrow512$, biases are implicit, and $\beta=0.2$. The second projection and its bias are zero-initialized, so the input residual initially vanishes: $Z=A$. This initialization lets the model learn a variation correction from the original appearance input. $Z$ is injected before positional embeddings and the temporal transformer, allowing both prediction pathways to use the refined representation. The residual adds 132,736 parameters.
+
+At inference, raw appearance and variation features are split into the same non-overlapping 256-snippet windows, with padding in the final window. No segment averaging is performed. Variation is computed over the full raw sequence before windowing, preserving transitions across adjacent windows in the variation input. Training and inference therefore share the feature-space difference and residual mapping while retaining VadCLIP's windowed evaluation.
+
+\subsection{Sparse-Neighborhood Graph Refinement}
+We strengthen similarity-based propagation with a parameter-free nearest-neighbor mixture. Let $F$ be the transformer output and $S_{ij}=\cos(F_i,F_j)$. VadCLIP thresholds similarities at $0.7$ before applying a row-wise softmax~\cite{wu2024vadclip}. A thresholded zero still contributes $e^0$ to the softmax denominator, so these entries retain nonzero weights. A sparse neighborhood term concentrates part of the propagation mass on the most similar snippets:
+\begin{equation}
+ G_{\mathrm{kNN}}=\softmax\!\big(M_k(S)\big),\qquad
+ G=(1-\alpha)G_{\mathrm{orig}}+\alpha G_{\mathrm{kNN}},
+ \label{eq:graph}
+\end{equation}
+where $M_k$ retains the $k$ largest similarities per valid row, including self, and masks the others to $-\infty$. We use $k=16$ and $\alpha=0.25$. The mixture retains global context through $G_{\mathrm{orig}}$ and increases the contribution of the nearest-neighbor set through $G_{\mathrm{kNN}}$. Both terms are row-normalized on valid positions. The final mixture retains a dense component; the sparse term changes the allocation of propagation weights without introducing trainable parameters. Only the similarity branch uses $G$. The distance branch and the concatenation/projection that produce $h$ remain as in VadCLIP.
 
 \subsection{Pathway-Restricted Semantic Adaptation}
-\label{sec:isa}
-
-VadCLIP trains $s^{(2)}$ with the class-level CLASM objective. We add a binary multiple-instance target on $p$: for a video of valid length $\ell$ and label $y$, let $q$ be the mean of the $\lfloor \ell/16 \rfloor + 1$ largest $p_j$, and
+\textbf{Semantic multiple-instance objective.}
+VadCLIP supervises prompt-aligned logits with its class-level CLASM objective~\cite{wu2024vadclip}. We supplement it with a binary anomaly objective applied to the semantic probability $p$ in Eq.~\eqref{eq:semantic}. For valid sequence length $\ell$, define $k_b=\lfloor\ell/16\rfloor+1$ and let $\mathcal{K}$ contain the $k_b$ highest-scoring valid positions. With video-level anomaly label $y$, the objective is
 \begin{equation}
-  \mathcal{L} = \mathcal{L}_{\mathrm{CLASM}} + \lambda\, \mathrm{BCE}(q, y), \qquad \lambda = 0.1.
-  \label{eq:isa}
+ q=\frac{1}{k_b}\sum_{j\in\mathcal{K}}p_j,\qquad
+ \mathcal{L}_{\mathrm{S2}}=\mathcal{L}_{\mathrm{CLASM}}+
+ \lambda\,\BCE(q,y),
+ \label{eq:loss}
 \end{equation}
-CLASM supervises which class a video belongs to, whereas the binary term supervises whether its most anomalous snippets are anomalous at all, which is the quantity $p$ is evaluated on. Optimized over the whole network, however, this objective also changes $h$ and hence $s^{(1)}$, so a gain on the semantic output can be paid for on the classification output.
+where $\lambda=0.1$. CLASM retains class-level alignment, while the binary term directly supervises the anomalousness represented by $p$. Both use the original video-level labels.
 
-Stage~2 avoids this by restricting the update to a subgraph. In VadCLIP's computation, $h$ and $a$ are computed before the text-side adapter and $s^{(1)}$ reads only $h$, so
+\textbf{Classification-preserving update.}
+Stage~2 starts from the Stage~1 checkpoint and optimizes Eq.~\eqref{eq:loss} with respect to $\theta_{\mlp_1}$ alone. All other parameters are frozen, including the temporal network, classification head, CLIP encoders, and prompt embeddings. The frozen components run in evaluation mode. Since $\mlp_1$ is downstream of the classifier,
 \begin{equation}
-  \frac{\partial s^{(1)}}{\partial \theta_{\mathrm{mlp1}}} = 0, \qquad
-  \frac{\partial s^{(2)}_{j,c}}{\partial \theta_{\mathrm{mlp1}}} = \frac{\partial s^{(2)}_{j,c}}{\partial t_c}\,\frac{\partial t_c}{\partial \theta_{\mathrm{mlp1}}} \neq 0 .
-  \label{eq:grad}
+ \frac{\partial s^{(1)}}{\partial\theta_{\mlp_1}}=0.
+ \label{eq:invariance}
 \end{equation}
-Stage~2 starts from the Stage~1 model and optimizes Eq.~\eqref{eq:isa} with respect to $\theta_{\mathrm{mlp1}}$ only, with all other parameters frozen. With the parameters before the branch point fixed, $h$, $a$, and $s^{(1)}$ are identical before and after Stage~2, and the semantic output changes only through the refined class prompts $t_c$. The parameter restriction is therefore determined by the computational dependency of VadCLIP rather than by parameter efficiency alone: because the classification output does not depend on the text-side adapter, updating this adapter can modify semantic predictions without modifying classification scores. This lets us add semantic supervision while preserving the original classifier pathway exactly, instead of trading one output against the other through a loss weight. The adapter already exists in VadCLIP, so Stage~2 adds no parameters and no inference cost.
-
-\subsection{Implementation Details}
-\label{sec:impl}
-
-Stage~1 follows VadCLIP's released configuration for each dataset and trains for 10 epochs. Stage~2 trains the \mlpOneParams{} parameters of $\mathrm{mlp}_1$ for 3 epochs with AdamW (learning rate $2\times10^{-5}$, weight decay $0.01$), batch size 64 on UCF-Crime and 96 on XD-Violence. The hyperparameters $\beta$, $k$, $\alpha$, and $\lambda$ are shared across datasets.
+For a fixed input, $h$, $s^{(1)}$, $a$, and $t_c^0$ are therefore unchanged during this stage. Semantic predictions can still adapt through $t_c=u_c+\mlp_1(u_c)$. This restriction separates semantic optimization from classification preservation without requiring a compensating classification loss or a choice of trade-off weight between the two outputs. It preserves the classifier established by Stage~1, including any downstream thresholding of its scores. Stage~2 updates 2,099,712 existing parameters and adds no inference operations or parameters.

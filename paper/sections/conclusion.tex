@@ -1,6 +1,4 @@
-% Conclusion.
-
+\FloatBarrier
+\Needspace{15\baselineskip}
 \section{Conclusion}
-\label{sec:conclusion}
-
-We showed that, in CLIP-based weakly supervised video anomaly detection, where refinement is applied matters as much as what is applied. Temporal variation extracted before fixed-length aggregation improves the classification output, whereas the same variation extracted afterwards degrades it. Semantic adaptation restricted to the semantic-side adapter improves the semantic output and leaves the classification pathway unchanged. Both gains are consistent across matched seeds, the XD-Violence gain persists under VadCLIP's official training setting, and the overhead is \pvrParams{} parameters and a few percent latency. These properties make the method a practical drop-in refinement for efficient surveillance and safety-monitoring systems.
+We presented placement-aware refinement for CLIP-based weakly supervised video anomaly detection. Pre-aggregation variation refinement exposes raw snippet dynamics to the temporal model through aligned aggregation and a low-rank residual, complemented by a nearest-neighbor graph mixture. Pathway-restricted semantic adaptation adds anomaly supervision to an existing text-side adapter while preserving classification scores. Component, placement, and equal-budget ablations establish the roles of these designs. The complete method improves matched VadCLIP results on UCF-Crime and XD-Violence, reaches 84.94\% best-run AP under the original XD-Violence training setting, and adds less than 4\% neural scoring latency. These results support a lightweight extension that improves temporal evidence and semantic prediction through targeted computational placement.

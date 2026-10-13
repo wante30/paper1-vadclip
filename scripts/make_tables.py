@@ -1,267 +1,156 @@
-"""Generate paper/tables/*.tex and paper/numbers_results.tex from evidence/results_ledger.csv.
+"""Generate manuscript tables from the inspected, fixed evidence snapshot.
 
-All values are percentages. Aggregates are mean and sample SD over seeds; paired
-deltas are computed per seed (same seed for both arms) and summarized the same way.
-No value is typed by hand.
+No model training or evaluation is performed. All AUC/AP values in the input
+ledger are fractions; tables report percent, and differences percentage points.
 """
 from __future__ import annotations
-
-import csv
-import statistics
+import csv, json, statistics
 from pathlib import Path
+ROOT=Path(__file__).resolve().parents[1]
+OUT=ROOT/'paper'/'tables'
+OUT.mkdir(parents=True,exist_ok=True)
+with (ROOT/'evidence/cscwd_snapshot/results_ledger.csv').open(encoding='utf-8') as f:
+    rows=list(csv.DictReader(f))
+D={(r['dataset'],r['protocol'],r['condition'],r['seed'],r['metric']):float(r['value'])*100 for r in rows}
+assert len(D)==len(rows), 'Duplicate metric identities'
 
-ROOT = Path(__file__).resolve().parent.parent
-TABLES = ROOT / "paper" / "tables"
+def vals(ds,c,m,proto='clean',seeds=('234','235','236')):
+    return [D[(ds,proto,c,str(s),m)] for s in seeds]
+def stat(ds,c,m,proto='clean',seeds=('234','235','236')):
+    v=vals(ds,c,m,proto,seeds)
+    return statistics.mean(v),statistics.stdev(v)
+def delta(ds,a,b,m,proto='clean',seeds=('234','235','236')):
+    v=[x-y for x,y in zip(vals(ds,a,m,proto,seeds),vals(ds,b,m,proto,seeds))]
+    return statistics.mean(v),statistics.stdev(v),sum(x>0 for x in v)
+def fmt(ms,signed=False,bold=False):
+    a=(f'{ms[0]:+.2f}' if signed else f'{ms[0]:.2f}')
+    out=a+r'\,\pm\,'+f'{ms[1]:.2f}'
+    return '$'+(r'\mathbf{'+out+'}' if bold else out)+'$'
+def write(name,s): (OUT/name).write_text(s,encoding='utf-8')
+def mrow(label,entries):return label+' & '+' & '.join(entries)+r' \\'+'\n'
 
-with (ROOT / "evidence" / "results_ledger.csv").open(encoding="utf-8") as f:
-    LEDGER = {(r["dataset"], r["protocol"], r["condition"], r["seed"], r["metric"]): float(r["value"]) * 100
-              for r in csv.DictReader(f)}
+# External benchmark. Published scores are transcribed, not re-evaluated here.
+pub=[('Sultani et al.','sultani2018real','84.14','75.18'),
+     ('HL-Net','wu2020xdviolence','84.57','80.00'),
+     ('RTFM','tian2021rtfm','85.66','78.27'),
+     ('UR-DMU','zhou2023urdmu','86.75','82.41'),
+     ('CLIP-TSA','joo2023cliptsa','87.58','82.17'),
+     ('VadCLIP','wu2024vadclip','88.02','84.51')]
+s=r'''\begin{table}[t]
+\centering
+\caption{Published CLIP-based benchmark results (\%). Earlier comparison rows follow VadCLIP~\cite{wu2024vadclip}; VadCLIP++ follows~\cite{liu2026vadclippp}. Our official-setting result is the best of three runs.}
+\label{tab:benchmark}
+\small\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrr}\toprule
+Method & UCF AUC & XD AP \\\midrule
+'''
+for n,k,u,x in pub:s+=mrow(n+r'~\cite{'+k+'}',[u,x])
+s+=mrow(r'VadCLIP++~\cite{liu2026vadclippp}',['88.12','85.03'])
+s+=r'\midrule'+'\n'+mrow('Ours (official setting)',['--',r'\textbf{84.94}'])
+s+=r'\bottomrule\end{tabular}\end{table}'+'\n'
+write('tab_benchmark.tex',s)
 
+# Full-method metrics, never substitute Stage-1 semantic scores for the final model.
+cols=[('UCF','Final','AUC1'),('UCF','Final','AP1'),('UCF','Final','AUC2'),('UCF','Final','AP2'),('XD','T','AP2'),('XD','T','AP1')]
+s=r'''\begin{table*}[t]
+\centering
+\caption{Fixed-epoch results (mean $\pm$ standard deviation, \%) for the same seeds 234--236. Subscripts identify the classification (1) and semantic (2) outputs. $\Delta$ is the paired improvement over retrained VadCLIP.}
+\label{tab:controlled}
+\small\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{lrrrrrr}\toprule
+& \multicolumn{4}{c}{UCF-Crime} & \multicolumn{2}{c}{XD-Violence}\\
+\cmidrule(lr){2-5}\cmidrule(lr){6-7}
+Method & AUC$_1$ & AP$_1$ & AUC$_2$ & AP$_2$ & AP$_2$ & AP$_1$\\\midrule
+'''
+s+=mrow('VadCLIP',[fmt(stat(ds,'B0',m)) for ds,c,m in cols])
+s+=mrow('Ours',[fmt(stat(ds,c,m),bold=(i<5)) for i,(ds,c,m) in enumerate(cols)])
+s+=mrow(r'Paired $\Delta$',[fmt(delta(ds,c,'B0',m),signed=True) for ds,c,m in cols])
+s+=r'\bottomrule\end{tabular}\end{table*}'+'\n'
+write('tab_controlled.tex',s)
 
-def by_seed(ds, proto, cond, metric):
-    return {k[3]: v for k, v in LEDGER.items() if k[:3] == (ds, proto, cond) and k[4] == metric}
+# Official results. The six input measurements are the author-supplied remote-4090 summary.
+s=r'''\begin{table}[t]
+\centering
+\caption{XD-Violence AP (\%) using the original VadCLIP training setting. Each row pairs the same seed; $\Delta$ denotes Ours minus VadCLIP.}
+\label{tab:official}
+\small\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{lrrr}\toprule
+Seed & VadCLIP & Ours & $\Delta$\\\midrule
+'''
+for seed in ('234','235','236'):
+ b=vals('XD','B0','AP2','official_rerun',(seed,))[0];t=vals('XD','T','AP2','official_rerun',(seed,))[0]
+ s+=mrow(seed,[f'{b:.2f}',r'\textbf{'+f'{t:.2f}'+'}',f'{t-b:+.2f}'])
+s+=r'\midrule'+'\n'+mrow('Mean',[fmt(stat('XD','B0','AP2','official_rerun')),fmt(stat('XD','T','AP2','official_rerun')),fmt(delta('XD','T','B0','AP2','official_rerun'),signed=True)])
+s+=r'\bottomrule\end{tabular}\end{table}'+'\n'
+write('tab_official.tex',s)
 
+# Mechanism panels separate the two-seed and three-seed populations explicitly.
+s=r'''\begin{table}[t]
+\centering
+\caption{Component and mechanism ablations (\%). Panel (a) uses seeds 234/235; panels (b,c) use 234--236. All values are means. $\Delta$ is relative to the baseline within each panel. C and full Stage 2 share the checkpoint, sample order and three-epoch budget, differing only in $\lambda$.}
+\label{tab:ablations}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrr}\toprule
+\multicolumn{3}{l}{\textbf{(a) Stage 1 components: UCF AUC$_1$}}\\
+Variant & AUC & $\Delta$\\\midrule
+'''
+for name,c in [('VadCLIP','B0'),('+ PVR','A'),('+ PVR + kNN','AE')]:
+ a=stat('UCF',c,'AUC1',seeds=('234','235'))[0]
+ d='--' if c=='B0' else f"{delta('UCF',c,'B0','AUC1',seeds=('234','235'))[0]:+.2f}"
+ s+=mrow(name,[f'{a:.2f}',d])
+s+=r'''\midrule
+\multicolumn{3}{l}{\textbf{(b) Variation placement: UCF AUC$_1$}}\\
+Variant & AUC & $\Delta$\\\midrule
+'''
+for name,c in [('VadCLIP','B0'),('Post-aggregation + kNN','POST'),('Pre-aggregation + kNN','AE')]:
+ a=stat('UCF',c,'AUC1')[0];d='--' if c=='B0' else f"{delta('UCF',c,'B0','AUC1')[0]:+.2f}"
+ s+=mrow(name,[f'{a:.2f}',d])
+s+=r'''\bottomrule\end{tabular}
+\par\vspace{6pt}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrr}\toprule
+\multicolumn{4}{l}{\textbf{(c) Semantic adaptation: XD-Violence}}\\
+Variant & AP$_2$ & $\Delta$ & AP$_1$\\\midrule
+'''
+for name,c in [('VadCLIP','B0'),('Stage 1','AE'),('Stage 1 + CLASM (C)','C'),('Stage 1 + Stage 2','T'),('VadCLIP + Stage 2','B0T')]:
+ a=stat('XD',c,'AP2')[0];d='--' if c=='B0' else f"{delta('XD',c,'B0','AP2')[0]:+.2f}"
+ s+=mrow(name,[f'{a:.2f}',d,f"{stat('XD',c,'AP1')[0]:.2f}"])
+s+=r'''\bottomrule\end{tabular}
+\end{table}
+'''
+write('tab_ablations.tex',s)
 
-def agg(ds, proto, cond, metric):
-    vals = list(by_seed(ds, proto, cond, metric).values())
-    if not vals:
-        return None
-    return statistics.fmean(vals), (statistics.stdev(vals) if len(vals) > 1 else None), len(vals)
+with (ROOT/'evidence/cscwd_snapshot/complexity.csv').open() as f:cx={(r['dataset'],r['arm']):r for r in csv.DictReader(f)}
+s=r'''\begin{table}[t]
+\centering
+\caption{Neural scoring cost for one 256-snippet window on an RTX 4060 Laptop GPU. Parameters exclude frozen CLIP encoders; peak allocated memory is in MiB.}
+\label{tab:complexity}
+\small\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrr}\toprule
+Data & Model & Params (M) & Time (ms) & Memory\\\midrule
+'''
+for ds in ('UCF','XD'):
+ for c,name in [('B0','VadCLIP'),('Final','Ours')]:
+  r=cx[ds,c];s+=mrow(ds if c=='B0' else '',[name,f"{int(r['params_excl_clip'])/1e6:.3f}",f"{float(r['latency_ms_median']):.2f}",f"{float(r['peak_alloc_mib']):.2f}"])
+s+=r'\bottomrule\end{tabular}\end{table}'+'\n'
+write('tab_complexity.tex',s)
 
-
-def pdelta(ds, metric, a, b):
-    xa, xb = by_seed(ds, *a, metric), by_seed(ds, *b, metric)
-    if "ref" in xb:
-        diffs = [v - xb["ref"] for v in xa.values()]
-    else:
-        diffs = [xa[s] - xb[s] for s in sorted(set(xa) & set(xb))]
-    if not diffs:
-        return None
-    return (statistics.fmean(diffs), statistics.stdev(diffs) if len(diffs) > 1 else None,
-            len(diffs), sum(d > 0 for d in diffs))
-
-
-def cell(a, signed=False, mark_n=True):
-    if a is None:
-        return "--"
-    m, s, n = a[0], a[1], a[2]
-    body = (f"{m:+.2f}" if signed else f"{m:.2f}").replace("-", "$-$")
-    if s is not None:
-        body += f"$\\pm${s:.2f}"
-    if mark_n and n < 3:
-        body += f"$^{{n={n}}}$"
-    return body
-
-
-def dcell(d):
-    if d is None:
-        return "--"
-    return cell(d[:3], signed=True) + f" ({d[3]}/{d[2]})"
-
-
-def write(name, caption, label, colspec, header, body_rows, env="table"):
-    caption = caption.replace("%", "\\%")
-    lines = ["% Auto-generated by scripts/make_tables.py. Do not edit by hand.",
-             f"\\begin{{{env}}}[t]", "\\centering", "\\small", "\\setlength{\\tabcolsep}{4pt}",
-             f"\\caption{{{caption}}}", f"\\label{{{label}}}",
-             f"\\begin{{tabular}}{{{colspec}}}", "\\toprule", header + " \\\\", "\\midrule"]
-    for row in body_rows:
-        lines.append(row if isinstance(row, str) else " & ".join(row) + " \\\\")
-    lines += ["\\bottomrule", "\\end{tabular}", f"\\end{{{env}}}"]
-    (TABLES / name).write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
-C = ("clean",)
-
-
-def main():
-    TABLES.mkdir(parents=True, exist_ok=True)
-    macros = {}
-
-    # Table: controlled comparison (both branches on both datasets)
-    cols = [("UCF", "AUC1"), ("UCF", "AP2"), ("XD", "AP2"), ("XD", "AP1")]
-    rows = [
-        ["VadCLIP, retrained"] + [cell(agg(d, "clean", "B0", m)) for d, m in cols],
-        ["Ours"] + [cell(agg(d, "clean", "Final" if d == "UCF" else "T", m)) for d, m in cols],
-        ["Paired $\\Delta$"] + [dcell(pdelta(d, m, ("clean", "Final" if d == "UCF" else "T"), ("clean", "B0")))
-                                for d, m in cols],
-    ]
-    write("tab_controlled.tex",
-          "Controlled comparison under the test-independent protocol (mean$\\pm$SD over seeds 234--236, %). "
-          "Paired $\\Delta$ is computed per seed; parentheses give the number of positive seeds. "
-          "Headline metrics follow VadCLIP: AUC of $s^{(1)}$ on UCF-Crime and AP of $p$ on XD-Violence.",
-          "tab:controlled", "lcccc",
-          "Method & UCF AUC$_1$ & UCF AP$_2$ & XD AP$_2$ & XD AP$_1$", rows, env="table*")
-
-    # Table: Stage 1 analysis
-    s1 = [("VadCLIP (B0)", "B0"), ("Stage 1, pre-aggregation (Ours)", "AE"),
-          ("Stage 1, post-aggregation", "POST")]
-    rows = []
-    for name, cond in s1:
-        u, x = agg("UCF", "clean", cond, "AUC1"), agg("XD", "clean", cond, "AP2")
-        du = None if cond == "B0" else pdelta("UCF", "AUC1", ("clean", cond), ("clean", "B0"))
-        dx = None if cond == "B0" else pdelta("XD", "AP2", ("clean", cond), ("clean", "B0"))
-        rows.append([name, cell(u), dcell(du), cell(x), dcell(dx)])
-    write("tab_stage1.tex",
-          "Placement of temporal variation in Stage 1 (test-independent protocol, %). Pre-aggregation computes "
-          "variation on raw snippets; post-aggregation computes it on the pooled sequence with all other settings "
-          "fixed. $\\Delta$ is the paired difference to B0.",
-          "tab:stage1", "lcccc",
-          "Variant & UCF AUC$_1$ & $\\Delta$ & XD AP$_2$ & $\\Delta$", rows)
-
-    # Table: Stage 2 analysis on XD
-    s2 = [("VadCLIP (B0)", "B0"), ("Stage 1", "AE"), ("Stage 1 + CLASM only (C)", "C"),
-          ("Stage 1 + Stage 2 (Ours)", "T"), ("B0 + Stage 2", "B0T")]
-    rows = []
-    for name, cond in s2:
-        rows.append([name, cell(agg("XD", "clean", cond, "AP2")),
-                     "--" if cond == "B0" else dcell(pdelta("XD", "AP2", ("clean", cond), ("clean", "B0"))),
-                     cell(agg("XD", "clean", cond, "AP1"))])
-    write("tab_stage2.tex",
-          "Stage 2 on XD-Violence (test-independent protocol, %). C and Stage 2 start from the same Stage 1 "
-          "checkpoint and sample order and differ only in $\\lambda$. AP$_1$ is unchanged by Stage 2 by construction.",
-          "tab:stage2", "lccc",
-          "Variant & XD AP$_2$ & $\\Delta$ vs.\\ B0 & XD AP$_1$", rows)
-
-    # Table: matched comparison under VadCLIP's official training protocol (XD AP2)
-    ob, ot = by_seed("XD", "official_rerun", "B0", "AP2"), by_seed("XD", "official_rerun", "T", "AP2")
-    rows = [[s, f"{ob[s]:.2f}", f"{ot[s]:.2f}", f"{ot[s] - ob[s]:+.2f}".replace("-", "$-$")]
-            for s in sorted(set(ob) & set(ot))]
-    rows.append("\\midrule")
-    rows.append(["Mean", cell(agg("XD", "official_rerun", "B0", "AP2")), cell(agg("XD", "official_rerun", "T", "AP2")),
-                 dcell(pdelta("XD", "AP2", ("official_rerun", "T"), ("official_rerun", "B0")))])
-    write("tab_official.tex",
-          "XD-Violence AP (%) under VadCLIP's official training script, which evaluates on the test set "
-          "after every epoch and keeps and reloads the best checkpoint. B0 and Ours are trained with the same "
-          "script and seed. $\\Delta$ is the paired difference; parentheses give the number of positive seeds.",
-          "tab:official", "lccc",
-          "Seed & VadCLIP (B0) & Ours & $\\Delta$", rows)
-
-    # Table: complexity (from evidence/complexity.csv)
-    with (ROOT / "evidence" / "complexity.csv").open(encoding="utf-8") as f:
-        cx = {(r["dataset"], r["arm"]): r for r in csv.DictReader(f)}
-    rows = []
-    for ds in ("UCF", "XD"):
-        for arm, name in (("B0", "VadCLIP"), ("Final", "Ours")):
-            r = cx[(ds, arm)]
-            rows.append([ds if arm == "B0" else "", name, f"{int(r['params_excl_clip']):,}".replace(",", "{,}"),
-                         f"{float(r['latency_ms_median']):.1f}", f"{float(r['peak_alloc_mb']):.0f}"])
-    write("tab_complexity.tex",
-          "Inference cost per window of 256 snippets (batch 1, median of 200 passes after 20 warm-up passes, "
-          "including prompt encoding). Parameters exclude the frozen CLIP encoders.",
-          "tab:complexity", "llrrr", "Data & Model & Params & Latency (ms) & Peak mem.\\ (MB)", rows)
-
-    # Table: published results (evidence/published_results.csv, numbers as reported in the VadCLIP paper)
-    with (ROOT / "evidence" / "published_results.csv").open(encoding="utf-8") as f:
-        pub = list(csv.DictReader(f))
-    rows = [[f"{r['method']}~\\cite{{{r['cite_key']}}}", r["ucf_auc"], r["xd_ap"]] for r in pub]
-    rows.append("\\midrule")
-    rows.append(["VadCLIP, retrained (ours)", cell(agg("UCF", "clean", "B0", "AUC1")), cell(agg("XD", "clean", "B0", "AP2"))])
-    rows.append(["Ours", cell(agg("UCF", "clean", "Final", "AUC1")), cell(agg("XD", "clean", "T", "AP2"))])
-    rows.append("\\midrule")
-    rows.append(["VadCLIP, official script (ours)", "--", cell(agg("XD", "official_rerun", "B0", "AP2"))])
-    rows.append(["Ours, official script", "--", cell(agg("XD", "official_rerun", "T", "AP2"))])
-    write("tab_sota.tex",
-          "Published results with CLIP features (%), as reported in VadCLIP~\\cite{wu2024vadclip}; these use each "
-          "method's own training and model-selection protocol. Rows below the first rule are our three-seed means "
-          "under the test-independent protocol; rows below the second rule use VadCLIP's official script, which "
-          "selects checkpoints on the test set. Only rows within a block are directly comparable.",
-          "tab:sota", "lcc", "Method & UCF AUC$_1$ & XD AP$_2$", rows)
-
-    # 6-page version, Table 1: benchmark context + matched comparison
-    keep = {"tian2021rtfm", "zhou2023urdmu", "joo2023cliptsa", "wu2024vadclip"}
-    rows = [[f"{r['method']}~\\cite{{{r['cite_key']}}}", r["ucf_auc"], r["xd_ap"]] for r in pub if r["cite_key"] in keep]
-    rows.append("\\midrule")
-    rows.append("\\multicolumn{3}{l}{\\emph{Matched comparison (same protocol and seeds)}} \\\\")
-    rows.append(["VadCLIP, retrained", cell(agg("UCF", "clean", "B0", "AUC1")), cell(agg("XD", "clean", "B0", "AP2"))])
-    rows.append(["Ours", cell(agg("UCF", "clean", "Final", "AUC1")), cell(agg("XD", "clean", "T", "AP2"))])
-    rows.append(["Paired $\\Delta$", dcell(pdelta("UCF", "AUC1", ("clean", "Final"), ("clean", "B0"))),
-                 dcell(pdelta("XD", "AP2", ("clean", "T"), ("clean", "B0")))])
-    rows.append("\\midrule")
-    rows.append("\\multicolumn{3}{l}{\\emph{VadCLIP's official script (best-epoch selection)}} \\\\")
-    rows.append(["VadCLIP, retrained", "--", cell(agg("XD", "official_rerun", "B0", "AP2"))])
-    rows.append(["Ours", "--", cell(agg("XD", "official_rerun", "T", "AP2"))])
-    write("tab_main.tex",
-          "Results on UCF-Crime (AUC, %) and XD-Violence (AP, %) with CLIP features. Published rows are taken "
-          "from VadCLIP~\\cite{wu2024vadclip} and serve as benchmark context; each follows its own training "
-          "protocol. Method claims rest on the matched comparison: mean$\\pm$SD over three seeds, paired "
-          "$\\Delta$ per seed, number of positive seeds in parentheses. The bottom block repeats the matched "
-          "comparison under VadCLIP's official script, which selects the checkpoint on the test set; per-seed "
-          "values are in Table~\\ref{tab:official}. Only rows within a block are directly comparable.",
-          "tab:main", "lcc", "Method & UCF AUC & XD AP", rows)
-
-    # 6-page version, Table 2: mechanism ablation in two panels
-    def d_row(name, ds, m, a, b):
-        return [name, "", dcell(pdelta(ds, m, ("clean", a), ("clean", b)))]
-    rows = ["\\multicolumn{3}{l}{\\emph{(a) Stage 1, UCF-Crime AUC}} \\\\"]
-    for name, cond in (("VadCLIP (B0)", "B0"), ("Post-aggregation variation", "POST"), ("Pre-aggregation variation", "AE")):
-        rows.append([name, cell(agg("UCF", "clean", cond, "AUC1")),
-                     "--" if cond == "B0" else dcell(pdelta("UCF", "AUC1", ("clean", cond), ("clean", "B0")))])
-    rows.append(d_row("\\quad Pre $-$ Post", "UCF", "AUC1", "AE", "POST"))
-    rows.append("\\midrule")
-    rows.append("\\multicolumn{3}{l}{\\emph{(b) Stage 2, XD-Violence AP}} \\\\")
-    for name, cond in (("VadCLIP (B0)", "B0"), ("Stage 1", "AE"), ("+ CLASM only (C)", "C"),
-                       ("+ Restricted objective", "T")):
-        rows.append([name, cell(agg("XD", "clean", cond, "AP2")),
-                     "--" if cond == "B0" else dcell(pdelta("XD", "AP2", ("clean", cond), ("clean", "B0")))])
-    rows.append(d_row("\\quad Restricted $-$ C", "XD", "AP2", "T", "C"))
-    rows.append(["B0 + restricted objective", cell(agg("XD", "clean", "B0T", "AP2")),
-                 dcell(pdelta("XD", "AP2", ("clean", "B0T"), ("clean", "B0")))])
-    write("tab_ablation.tex",
-          "Mechanism ablations (%, mean$\\pm$SD over three matched seeds). $\\Delta$ is the paired difference to "
-          "VadCLIP (B0) unless stated otherwise. (a) Post-aggregation computes the difference on the pooled sequence "
-          "with all other settings fixed. (b) C runs the same budget from the same checkpoint with $\\lambda=0$.",
-          "tab:ablation", "lcc", "Variant & Score & $\\Delta$", rows)
-
-    # Macros for prose
-    def put(name, value):
-        macros[name] = value
-
-    def pm(prefix, d):
-        put(prefix + "Mean", f"{d[0]:+.2f}".replace("-", "$-$"))
-        put(prefix + "Sd", f"{d[1]:.2f}" if d[1] is not None else "NA")
-        put(prefix + "Pos", f"{d[3]}/{d[2]}")
-
-    pm("ucfGain", pdelta("UCF", "AUC1", ("clean", "Final"), ("clean", "B0")))
-    pm("xdGain", pdelta("XD", "AP2", ("clean", "T"), ("clean", "B0")))
-    pm("xdApOneChange", pdelta("XD", "AP1", ("clean", "T"), ("clean", "B0")))
-    pm("prePost", pdelta("UCF", "AUC1", ("clean", "AE"), ("clean", "POST")))
-    pm("postBase", pdelta("UCF", "AUC1", ("clean", "POST"), ("clean", "B0")))
-    pm("xdStageOne", pdelta("XD", "AP2", ("clean", "AE"), ("clean", "B0")))
-    pm("tMinusC", pdelta("XD", "AP2", ("clean", "T"), ("clean", "C")))
-    pm("bzT", pdelta("XD", "AP2", ("clean", "B0T"), ("clean", "B0")))
-    pm("tMinusBzT", pdelta("XD", "AP2", ("clean", "T"), ("clean", "B0T")))
-    pm("offGain", pdelta("XD", "AP2", ("official_rerun", "T"), ("official_rerun", "B0")))
-    pm("ucfApTwoStageTwo", pdelta("UCF", "AP2", ("clean", "Final"), ("clean", "AE")))
-    e_u = pdelta("UCF", "AUC1", ("clean", "E_only"), ("clean", "B0"))
-    put("eOnlyUcfAuc", f"{agg('UCF', 'clean', 'E_only', 'AUC1')[0]:.2f}")
-    put("eOnlyUcfDelta", f"{e_u[0]:+.2f}")
-    put("eOnlyXdDelta", f"{pdelta('XD', 'AP2', ('clean', 'E_only'), ('clean', 'B0'))[0]:+.2f}")
-    for ds, m, cond, name in (("UCF", "AUC1", "B0", "ucfRetrained"), ("UCF", "AUC1", "Final", "ucfOurs"),
-                              ("XD", "AP2", "B0", "xdBase"), ("XD", "AP2", "T", "xdOurs"),
-                              ("XD", "AP1", "B0", "xdBaseApOne"), ("XD", "AP2", "B0T", "xdBzT"),
-                              ("UCF", "AUC1", "R", "ucfOfficial"), ("XD", "AP2", "R", "xdOfficial"),
-                              ("XD", "AP2", "B0", "offBase"), ("XD", "AP2", "T", "offOurs")):
-        proto = "official" if cond == "R" else ("official_rerun" if name.startswith("off") else "clean")
-        a = agg(ds, proto, cond, m)
-        put(name, f"{a[0]:.2f}")
-    put("offBaseSd", f"{agg('XD', 'official_rerun', 'B0', 'AP2')[1]:.2f}")
-    put("offOursSd", f"{agg('XD', 'official_rerun', 'T', 'AP2')[1]:.2f}")
-    put("offBestOurs", f"{max(by_seed('XD', 'official_rerun', 'T', 'AP2').values()):.2f}")
-    put("xdBaseSd", f"{agg('XD', 'clean', 'B0', 'AP2')[1]:.2f}")
-    pm("ucfApTwoGain", pdelta("UCF", "AP2", ("clean", "Final"), ("clean", "B0")))
-    import json
-    off = json.loads(Path(r"C:\Projects\baseline-first\vadclip_method_stage11_isolated_semantic_posttrain"
-                          r"\OFFICIAL_XD_CHECKPOINT_EVAL.json").read_text(encoding="utf-8-sig"))
-    put("xdReadmeAp", f"{off['reported_ap2'] * 100:.2f}")
-    put("xdReadmeGap", f"{abs(off['delta_reported_pp']):.2f}")
-
-    lines = ["% Auto-generated by scripts/make_tables.py. Do not edit by hand."]
-    lines += [f"\\newcommand{{\\{k}}}{{{v}}}" for k, v in sorted(macros.items())]
-    (ROOT / "paper" / "numbers_results.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
-    for k, v in sorted(macros.items()):
-        print(f"{k} = {v}")
-
-
-if __name__ == "__main__":
-    main()
+# Verification record for all calculations used in text/tables.
+audit={}
+for ds,c,m in cols:
+ audit[f'{ds}_{m}']={'baseline':stat(ds,'B0',m),'ours':stat(ds,c,m),'paired':delta(ds,c,'B0',m)}
+for key,args in [('PVR',('UCF','A','B0','AUC1')),('kNN_given_PVR',('UCF','AE','A','AUC1'))]:
+ audit[key]=delta(*args,seeds=('234','235'))
+audit['PRE_POST']=delta('UCF','AE','POST','AUC1')
+audit['Stage2_C']=delta('XD','T','C','AP2')
+audit['official']=delta('XD','T','B0','AP2','official_rerun')
+audit['complexity']={ds:{'latency_delta_percent':(float(cx[ds,'Final']['latency_ms_median'])/float(cx[ds,'B0']['latency_ms_median'])-1)*100,'peak_mib_delta':float(cx[ds,'Final']['peak_alloc_mib'])-float(cx[ds,'B0']['peak_alloc_mib']),'params_delta':int(cx[ds,'Final']['params_excl_clip'])-int(cx[ds,'B0']['params_excl_clip'])} for ds in ('UCF','XD')}
+(ROOT/'evidence/cscwd_snapshot/calculated_summary.json').write_text(json.dumps(audit,indent=2),encoding='utf-8')
+assert round(audit['UCF_AUC1']['paired'][0],2)==.28
+assert round(audit['XD_AP2']['paired'][0],2)==1.66
+assert round(audit['PVR'][0],2)==.25
+assert round(audit['PRE_POST'][0],2)==.67
+assert round(audit['Stage2_C'][0],2)==1.64
+assert all(audit['complexity'][d]['params_delta']==132736 for d in ('UCF','XD'))
+print(json.dumps(audit,indent=2))

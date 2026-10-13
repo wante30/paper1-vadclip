@@ -1,37 +1,39 @@
-% CSCWD 6-page version (IEEE conference, two-column).
-\documentclass[conference]{IEEEtran}
+\documentclass[conference,letterpaper]{IEEEtran}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
+\usepackage{cite}
+\usepackage{placeins}
+\usepackage{needspace}
+\usepackage{balance}
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
-
-\input{numbers}
-\input{numbers_results}
-
+\hypersetup{pdftitle={Placement-Aware Refinement for CLIP-Based Weakly Supervised Video Anomaly Detection},pdfauthor={Anonymous Authors},pdfsubject={Weakly supervised video anomaly detection},pdfkeywords={WSVAD, CLIP, temporal variation, semantic adaptation}}
+\newcommand{\Agg}{\operatorname{Agg}}
+\newcommand{\Norm}{\operatorname{norm}}
+\newcommand{\softmax}{\operatorname{softmax}}
+\newcommand{\BCE}{\operatorname{BCE}}
+\newcommand{\mlp}{\mathrm{mlp}}
+\hyphenation{VadCLIP anomalous anomaly aggregation}
 \begin{document}
-
-\title{Pre-Aggregation Temporal Variation and Pathway-Restricted Semantic Adaptation for Weakly Supervised Video Anomaly Detection}
+\title{Placement-Aware Refinement for CLIP-Based Weakly Supervised Video Anomaly Detection}
 \author{\IEEEauthorblockN{Anonymous Authors}}
 \maketitle
-
 \begin{abstract}
-CLIP-based weakly supervised video anomaly detectors resample each training video to a fixed length before any temporal modelling, and segment-mean aggregation suppresses the local temporal variation inside long videos. Optimizing an additional semantic objective over the whole network also perturbs the classification pathway on which other predictions depend. We address both problems by deciding where refinement is applied. Pre-aggregation temporal refinement computes snippet differences on the raw sequence, aggregates them with the same segment boundaries as the appearance features, and injects them through a zero-initialized low-rank residual. Pathway-restricted semantic adaptation optimizes a semantic multiple-instance objective only on the semantic-side adapter, after the classification and semantic pathways separate, so the classification output is preserved. Built on VadCLIP and compared with VadCLIP retrained under the same fixed-epoch protocol and matched seeds, the method improves UCF-Crime AUC by \ucfGainMean{} points and XD-Violence AP by \xdGainMean{} points, with positive paired differences on all three seeds. Under VadCLIP's official training setting, the XD-Violence gain is \offGainMean{}$\pm$\offGainSd{} points, positive on \offGainPos{} runs. The method adds \pvrParams{} parameters and increases inference latency by \cxUcfLatRel--\cxXdLatRel\%.
+Fixed-length temporal aggregation in CLIP-based weakly supervised video anomaly detection preserves average appearance but suppresses local feature variation. Additional semantic supervision can also change classification predictions through their shared representation. We propose a placement-aware refinement framework that addresses these two issues by controlling where temporal evidence enters the model and where semantic optimization acts. First, pre-aggregation variation refinement extracts differences from raw CLIP snippet features and injects aligned variation statistics through a zero-initialized low-rank residual. A sparse-neighborhood refinement further strengthens similarity-based temporal propagation. Second, pathway-restricted semantic adaptation optimizes a semantic multiple-instance objective through the existing text-side adapter, preserving classification outputs by construction. On UCF-Crime and XD-Violence, the method improves the matched VadCLIP baseline by 0.28 AUC and 1.66 AP percentage points, respectively. Under the original VadCLIP training setting, it achieves 84.94\% AP on XD-Violence in its best run. Component and placement ablations validate both refinements. The method adds 132,736 parameters and increases neural scoring latency by 3.3--3.6\%, with no additional inference operations from semantic adaptation.
 \end{abstract}
-
 \begin{IEEEkeywords}
-video anomaly detection, weak supervision, intelligent surveillance, vision-language models, lightweight adaptation
+weakly supervised video anomaly detection, vision-language models, temporal variation, semantic adaptation, intelligent surveillance
 \end{IEEEkeywords}
-
 \input{sections/introduction}
 \input{sections/related_work}
 \input{sections/method}
 \input{sections/experiments}
 \input{sections/conclusion}
-
+\balance
 \bibliographystyle{IEEEtran}
 \bibliography{../refs/references}
-
 \end{document}

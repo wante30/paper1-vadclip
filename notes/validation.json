@@ -1,0 +1,17 @@
+{
+  "pdf": "main.pdf",
+  "pages": 6,
+  "page_size": "US Letter (612 x 792 pt)",
+  "references": 24,
+  "tables": 5,
+  "figures": 1,
+  "overview_page": 2,
+  "undefined_citations_or_references": false,
+  "overfull_hboxes": false,
+  "defensive_phrase_candidates": [],
+  "text_outside_physical_pages": 0,
+  "word_count_including_tables_figures_references": 4254,
+  "visual_review": "All six pages and the architecture figure rendered and reviewed separately.",
+  "scope": "Paper build and arithmetic checks only; no training or re-evaluation.",
+  "author_block": "Anonymous Authors retained pending final author list"
+}
