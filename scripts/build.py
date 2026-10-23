@@ -25,8 +25,8 @@ def main():
     if not tex or not bib:
         raise RuntimeError('Install a TeX distribution with pdflatex and BibTeX, or compile paper/main.tex on Overleaf.')
     run([sys.executable,str(ROOT/'scripts/make_tables.py')],ROOT,BUILD/'tables_generation.log')
-    if not (ROOT/'paper/figures/overview.png').is_file():
-        raise RuntimeError('Missing supplied Figure 1: paper/figures/overview.png')
+    if not (ROOT/'paper/figures/overview_regenerated.png').is_file():
+        raise RuntimeError('Missing regenerated Figure 1: paper/figures/overview_regenerated.png')
     command=[tex,'-interaction=nonstopmode','-halt-on-error',f'-output-directory={BUILD}','main.tex']
     run(command,ROOT/'paper',BUILD/'pass1.log')
     env=dict(os.environ)
@@ -41,7 +41,7 @@ def main():
     shutil.copy2(BUILD/'main.pdf',ROOT/'main.pdf')
     shutil.copy2(BUILD/'main.bbl',ROOT/'paper/main.bbl')
     print('Built:',ROOT/'main.pdf')
-    print('Tables regenerated from evidence/cscwd_snapshot/results_ledger.csv; no experiments were run.')
+    print('Tables regenerated from the evidence snapshot and dated author-confirmed corrections; no experiments were run.')
 
 if __name__=='__main__':
     try: main()

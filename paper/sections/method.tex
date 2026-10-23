@@ -27,7 +27,7 @@ with elementwise absolute value. We then aggregate both streams using the same b
  A=\Agg(X),\qquad V=\Agg(D).
  \label{eq:aligned}
 \end{equation}
-Thus $V_j$ summarizes raw feature changes assigned to segment $j$, including a boundary transition when its first snippet follows another segment. Concatenating the appearance and variation channels before temporal processing keeps their positions aligned.
+Thus $V_j$ summarizes raw feature changes assigned to segment $j$, including a boundary transition when its first snippet follows another segment. We concatenate $X$ and $D$ for shared aggregation or windowing, then separate $A$ and $V$ for the residual fusion in Eq.~\eqref{eq:residual}.
 
 This ordering extracts information that differences of segment means do not specify. For example, a constant feature trajectory and an alternating trajectory around the same center can have identical means but different average absolute changes. After aggregation, a temporal difference sees the means alone. Computing Eq.~\eqref{eq:variation} first exposes the variation statistic to the detector alongside appearance. In our long training sequences, aggregation averages 5.76 snippets per segment on UCF-Crime and 2.23 on XD-Violence. On shorter sequences, pre- and post-aggregation differences coincide at valid positions before padding.
 

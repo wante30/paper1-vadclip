@@ -1,0 +1,59 @@
+Figure 1 regeneration
+Tool: built-in image_gen__imagegen
+Source reference: C:/Projects/baseline-first/paper1-vadclip-revision/ccfa-workfiles/final-revision/build/overview_corrected_preview.png
+Final image: overview_regenerated.png
+The generated raster is saved without resampling or manual pixel edits. Main manuscript source and PDF are not changed.
+
+INITIAL EDIT PROMPT
+Use case: precise-object-edit, academic scientific diagram.
+Edit target and style reference: the attached corrected Figure 1. Regenerate this SAME figure as a polished publication-ready second version, retaining its four side-by-side panels, overall approximately 2.47:1 wide aspect ratio, white and very pale ice-blue backgrounds, restrained bright-blue accents, thin gray borders and black arrows, serif Times-style academic typography, and small grayscale video thumbnails. Keep the recognizably same visual style. This is an IEEE two-column paper figure, intended to span about 7.1 inches. Produce a very high-resolution raster, preferably about 3840 pixels wide. No caption, Figure 1 text, watermark, or large outer margins.
+
+PRIMARY CHANGE: Much less clutter and larger, uniform readable text. Use only TWO consistent font sizes throughout: one bold panel-title size and one larger body/node-label size. All explanatory labels, node labels and formula base characters must have the same readable size; no tiny fine print. At final print size aim roughly 9pt headings and 7.5–8pt labels. Allow two or three short lines instead of shrinking text. Rebuild crisp text and clean lines, not photocopied noisy labels.
+
+SIMPLIFICATION: remove paragraphs, repeated tensor dimensions, repeated feature-bar stacks, duplicate backbone drawings, ornamental network nodes, flame and snowflake icons, most repeated formulas. Keep a few simple feature vectors and a small grayscale video strip so the design stays recognizable. Four clear panels separated by the same soft borders, and generous padding. Clearly connect the main flow left to right. Place NO text over arrows.
+
+EXACT PANEL CONTENT AND CONNECTIVITY:
+(a) heading "(a) Input and cues".
+A small grayscale three-frame filmstrip -> a box "Frozen CLIP encoder" -> "Appearance X".
+Branch X to a box "Absolute difference" -> "Variation D".
+One short formula only: D_t = |X_t - X_{t-1}| (use proper math subscripts).
+Send raw X and D as two separate arrows into panel (b). Show differencing BEFORE aggregation. Do not imply frame-level labels or optical flow.
+
+(b) heading "(b) Stage 1: PVR"; subtitle at standard body size "Pre-aggregation variation refinement".
+Two aligned columns X and D enter a shared outlined group labeled "Shared temporal aggregation" (appearance mean and variation mean use the SAME boundaries).
+Outputs labeled "A" and "V"; A goes directly to a plus node. V goes through a blue-outlined box "Bottleneck residual R" and then a short arrow labeled beta to the SAME plus node. Output is "Z" and enters the transformer in (c).
+One bottom formula: Z = A + beta R(V), with Greek beta.
+No other dimensions or equations. Do NOT fuse X and D by addition before aggregation.
+
+(c) heading "(c) Dual-output detector".
+Z -> "Temporal encoder".
+Fork into two compact boxes: "Similarity graph" with a clearly subordinate blue label "+ kNN mixture", and "Distance graph" with standard-size label "(temporal distance)".
+Both branches -> "Fusion" -> h.
+h forks to two simple output boxes "Classification" and "Semantic alignment"; classification outputs s^(1), semantic outputs p. Beneath use standard body labels "UCF-Crime" and "XD-Violence". The semantic branch is detailed in panel (d); do not repeat the text adapter network or formulas in panel (c).
+Distance is TEMPORAL position distance, never feature distance. kNN affects ONLY the similarity graph; no sparse-inference or acceleration claim.
+
+(d) heading "(d) Stage 2: Restricted adaptation"; subtitle "Update only text-side mlp1".
+Replace the two duplicate large frozen backbones with a compact clean dependency diagram. Gray frozen inputs h and s^(1) both enter "Weighted pooling" giving a. Frozen encoded class prompts t_c^0 and a enter a plus node producing u_c. u_c -> blue box "Residual mlp1" -> t_c. Both frozen h and t_c feed "Similarity scoring" -> p.
+Make the h-to-similarity input arrow explicit and separate from the text input. The residual box denotes t_c = u_c + mlp1(u_c); show this equation ONCE below the box in the same readable body font.
+Show final semantic readout ONCE: p_j = 1 - softmax(s_j^(2))_normal, proper math subscripts.
+Footer standard-sized "Stage 1 classification unchanged". Only the mlp1 box is highlighted as trainable. Everything upstream including h, s^(1), the CLIP encoders and class prompts is frozen in this stage. No feedback arrow from adapter to classifier, no duplicate addition of a to mlp1 input.
+
+Ensure the four panels feel like the same original paper figure, with balanced widths (give (d) enough width for readable labels), aligned typography and consistent arrow weight. Preserve technical meaning precisely while simplifying visual detail. Avoid long prose, gradients, shadows, decorative icons, invented modules, invented results or tiny annotations. Correct English spelling is essential.
+
+CONNECTIVITY CLARIFICATION PROMPT
+Edit this generated scientific figure with SURGICAL LOCAL CORRECTIONS ONLY. Preserve the exact four panels, all existing colors, white/ice-blue backgrounds, serif typography sizes, existing boxes, formulas, video thumbnails, and overall composition. Do not redesign or add visual ornament. Keep the same wide aspect ratio. Highest available resolution and crisp text.
+
+Correct these diagram connections:
+1. Panel (a): the vertical connection between "Absolute difference" and "Variation D" currently has its arrowhead at the WRONG end, pointing UP. REVERSE it. The flow must be "Appearance X" -> DOWN into "Absolute difference" -> DOWN into "Variation D". Exactly one arrowhead pointing down from the bottom of the difference box to the variation vector. D is the OUTPUT, never an input. Leave the D formula unchanged.
+2. Remove BOTH long black elbow lines that currently travel from panel (a) into panel (b), including the short arrowhead at the left side of the shared temporal aggregation box. These ambiguous cross-panel lines are unnecessary. Panels (a) and (b) use the same clear X and D labels, which already identify the two streams. Keep ALL internal arrows in (b): X down to LEFT mean/windowing operation -> A; D down to RIGHT operation -> V; V -> R -> beta -> plus, A -> plus; plus -> Z. Keep the Z connector from (b) to (c).
+3. Panel (d): the long upper bypass line to "Similarity scoring" currently starts next to s^(1), which is WRONG. It must visibly branch from the gray h feature vector. Draw a clean line from h UP, then across ABOVE BOTH h and s^(1) inputs, then down along the right side with an arrow into the TOP of "Similarity scoring". It must have NO junction with s^(1). s^(1) goes only down into "Weighted pooling". h feeds BOTH Weighted pooling AND Similarity scoring. Keep the t_c input entering Similarity scoring from the left. Do not change the residual equation or p equation.
+4. Panel (b) text clarification: replace the group heading "Shared temporal aggregation" with "Aligned temporal processing". In BOTH interior white boxes replace "Temporal mean" with two lines "Aggregate /" and "window". Same readable font size in both. This represents shared aggregation during training and shared windowing during inference; do not add a paragraph.
+All remaining content is correct. Verify the exact arrow directions and text after editing. Do NOT shrink any text. No new formulas, no tiny captions.
+
+FINAL LOCAL CORRECTION PROMPT
+Make EXACTLY ONE LOCAL CORRECTION to this image. Keep every other pixel, label, formula, color, font and layout as close as possible to the input.
+
+In the LEFTMOST panel (a), look at the box labeled "Absolute difference". Just BELOW this box there is a small black arrow pointing UP from the text "Variation D" into the box. This small upward arrow is incorrect. ERASE that entire small upward arrow and its short vertical shaft, leaving clean white background between the bottom edge of the "Absolute difference" box and the text "Variation D". In this tiny gap there must be NO arrow, NO line and NO arrowhead. DO NOT move or change "Variation D", its feature bars, or its equation. Keep the correct DOWNWARD arrow above the "Absolute difference" box.
+
+Do not redraw other panels, do not change any text, and do not add another arrow in the erased gap. The ONLY edit is removal of that tiny UPWARD arrow under Absolute difference.
+

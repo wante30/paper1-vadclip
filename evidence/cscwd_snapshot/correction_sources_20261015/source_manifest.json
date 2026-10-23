@@ -1,0 +1,16 @@
+{
+  "author_confirmation_date": "2026-10-15",
+  "scope": "Same method and protocols; AUC1 corrections only. Author explicitly confirmed that AP1, AUC2 and AP2 are unchanged.",
+  "sources": [
+    {
+      "original_path": "D:\\wechat\\xwechat_files\\wxid_dm6kjx304mbp22_4276\\temp\\RWTemp\\2026-10\\9e20f478899dc29eb19741386f9343c8\\760bc7a6899580324bc563634a8a4b8b.jpg",
+      "archived_path": "evidence/cscwd_snapshot/correction_sources_20261015/ucf_fixed_epoch.jpg",
+      "sha256": "3e3bfb5b13bc3650c4c30cd724d6a55e35ec3c904a908022b12daad1f2a65336"
+    },
+    {
+      "original_path": "D:\\wechat\\xwechat_files\\wxid_dm6kjx304mbp22_4276\\temp\\RWTemp\\2026-10\\9e20f478899dc29eb19741386f9343c8\\314ecac510e63750b7d7be7d38645996.jpg",
+      "archived_path": "evidence/cscwd_snapshot/correction_sources_20261015/ucf_official_setting.jpg",
+      "sha256": "8b9bb472b1fdcdf4c7ebba5493c46d4fe48cb76a2ce76370b060b6c1fbd83128"
+    }
+  ]
+}

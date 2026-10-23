@@ -1,0 +1,5 @@
+dataset,protocol,condition,label,metric,seeds,n,mean_percent
+XD,clean,B0,VadCLIP,AP2,234;235;236,3,77.57
+XD,clean,AE,Stage 1,AP2,234;235;236,3,77.60
+XD,clean,B0T,VadCLIP + Stage 2,AP2,234;235;236,3,79.15
+XD,clean,T,Stage 1 + Stage 2,AP2,234;235;236,3,79.23

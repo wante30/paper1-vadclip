@@ -5,7 +5,7 @@ Recent detectors improve feature discrimination, temporal context, and prompt le
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/overview.png}
+\includegraphics[width=\textwidth]{figures/overview_regenerated.png}
 \caption{Overview of placement-aware refinement. (a) Raw CLIP snippet features and temporal variation. (b) Pre-aggregation variation refinement with aligned aggregation and low-rank residual fusion. (c) Similarity and distance graph branches and two prediction pathways. (d) Restricted semantic post-training updates only the text-side adapter while preserving classification outputs.}
 \label{fig:overview}
 \end{figure*}
@@ -21,5 +21,5 @@ Component, placement, and objective ablations validate the framework's design. O
 \begin{itemize}
 \item \textbf{Pre-aggregation variation refinement.} We introduce an aligned temporal residual that supplies explicit snippet-variation statistics to the detector before temporal modeling. Component and pre/post-aggregation comparisons establish the value of this design, complemented by sparse-neighborhood graph refinement.
 \item \textbf{Classifier-preserving semantic adaptation.} We derive the update restriction from VadCLIP's computation graph and apply semantic multiple-instance supervision to an existing text-side adapter. Semantic predictions can adapt while classification outputs remain unchanged, without adding inference operations.
-\item \textbf{Effective, lightweight refinement.} Experiments on UCF-Crime and XD-Violence show improvements of 0.28 AUC and 1.66 AP points over matched VadCLIP retraining. The original training setting yields a best-run XD-Violence AP of 84.94\%, and neural scoring latency increases by less than 4\%.
+\item \textbf{Effective, lightweight refinement.} Experiments on UCF-Crime and XD-Violence show improvements of 0.41 AUC and 1.66 AP points over matched VadCLIP retraining. The original training setting yields a best-run XD-Violence AP of 84.94\%, and neural scoring latency increases by less than 4\%.
 \end{itemize}

@@ -1,0 +1,3 @@
+dataset,n_test,n_candidates,n_positive,n_negative,n_zero,median_delta_ap,mean_delta_ap,min_delta_ap,max_delta_ap,target_median_rank,selection_reason
+UCF,290,140,70,64,6,5.892844545640763e-05,-0.005335259470832335,-0.46403321875990206,0.6048824320195343,70.5,positive_in_middle_50pct_nearest_median_rank
+XD,800,475,218,218,39,0.0,-0.0015234185299715121,-0.48976122519117177,0.34301210559411066,238.0,positive_in_middle_50pct_nearest_median_rank

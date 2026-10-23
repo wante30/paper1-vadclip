@@ -1,0 +1,295 @@
+{
+  "rule_id": "all-candidate-middle-50pct-nearest-median-positive-v1",
+  "seed": 234,
+  "protocol": "clean",
+  "positive_tolerance": 1e-12,
+  "git_head": "5bea3693bb348fdf8d4a92d0356653ba59ca0b35",
+  "versions": {
+    "python": "3.13.13",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "matplotlib": "3.11.0"
+  },
+  "inputs": [
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\evidence\\results_ledger.csv",
+      "sha256": "ad57633c997208da7804b1bf6e4d2df78be57b2251433981d400cebed334f5f8"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\scripts\\make_qualitative_representative.py",
+      "sha256": "9b5acf29ad0941d6afcd1e842e049e787ff496ec61a5b487803fdc4c6b5911d6"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\assets\\ucf\\ucf_test.csv",
+      "sha256": "b25fa9264a3f841dc37a1a677d1ff3ee181effbecf443efee08c34511dcd8e7d"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\results\\ucf_seed234\\T_isolated_g_post\\official_eval\\frame_scores_and_gt.npz",
+      "sha256": "8bbd42c677190781ddfb869f333e2acd4b1615193c533b853478282e4b295f47"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\results\\ucf_seed234\\T_isolated_g_post\\official_eval\\metrics.json",
+      "sha256": "a086d5977cc9f9bacb83ffbf3f2d511f2a922bbe5c4cc08d2b5315d366940090"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\results\\ucf_seed234\\T_isolated_g_post\\official_eval\\per_video_alignment.csv",
+      "sha256": "42672e7e27ee0bc6773f9c734a7a8be8f3ddd1e3f2a5ec7bf911a201f7ca26f7"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\results\\xd_seed234\\T_clasm_g_post\\official_eval\\alignment.json",
+      "sha256": "e16df23356b5a3b3e4adaefaf7960ebca9c31fda70829f11959c95aa5ea7f037"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\results\\xd_seed234\\T_clasm_g_post\\official_eval\\frame_scores_and_gt.npz",
+      "sha256": "121a132f03f4ac32682ca5df1b5b25a8e3832ab5ee58a4d0f16f7033cb2d9d3a"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\results\\xd_seed234\\T_clasm_g_post\\official_eval\\metrics.json",
+      "sha256": "e870eaac8b899d3f3fe3d6cd92dcae206228733ae09d5d041ecff60b7d8aee1a"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\src\\evaluate_xd.py",
+      "sha256": "60ef761cc27f065dd9cfe8a0ad9af2df5895982faf9514dc5bbc7ec026873934"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage11_isolated_semantic_posttrain\\test_xd.csv",
+      "sha256": "d4677cf48db16886d49d1a37c78b15dc8cb6df1c24c9c65cb55d716a4a986557"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\code\\evaluate_checkpoint_with_scores.py",
+      "sha256": "00fba153b900cf6e51f8ec9b66a4cc5169c2081c50be1adbd4e98081610b5360"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\results\\seed234\\granularity\\B0_E2_clean\\frame_scores_and_gt.npz",
+      "sha256": "84a962f5c0df0e04cb7fdf5c0058087c473b3709106918926a5658e3b695374e"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\results\\seed234\\granularity\\B0_E2_clean\\metrics.json",
+      "sha256": "2821547853dcbbdc5672b7930cc0b8bd3f04c25cad482a7f4e5794e75cd8129e"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\results\\seed234\\granularity\\B0_E2_clean\\per_video_alignment.csv",
+      "sha256": "42672e7e27ee0bc6773f9c734a7a8be8f3ddd1e3f2a5ec7bf911a201f7ca26f7"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\results_xd\\seed234\\B0_clean\\official_eval\\alignment.json",
+      "sha256": "e16df23356b5a3b3e4adaefaf7960ebca9c31fda70829f11959c95aa5ea7f037"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\results_xd\\seed234\\B0_clean\\official_eval\\frame_scores_and_gt.npz",
+      "sha256": "206b5d90204b24992f515ba2ae63a94cd548b09774df1971ae9b97b6f62f3960"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\results_xd\\seed234\\B0_clean\\official_eval\\metrics.json",
+      "sha256": "3e737a29f2bc2b6f9b7cf7dedf7c83d9a552976e4eed571aa6a622f2f26287c2"
+    }
+  ],
+  "datasets": [
+    {
+      "dataset": "UCF",
+      "score_key": "frame_scores_prob1",
+      "selection": {
+        "dataset": "UCF",
+        "seed": 234,
+        "protocol": "clean",
+        "test_index": 133,
+        "video": "Stealing062_x264__5",
+        "label": "Stealing",
+        "score_key": "frame_scores_prob1",
+        "frame_start_concat": 443552,
+        "frame_end_concat_exclusive": 445104,
+        "n_frames": 1552,
+        "n_normal": 862,
+        "n_abnormal": 690,
+        "eligible": true,
+        "exclusion_reason": "",
+        "ap_vadclip": 0.5948272918454859,
+        "ap_ours": 0.5949451487363987,
+        "delta_ap": 0.00011785689091281526,
+        "delta_ap_pp": 0.011785689091281526,
+        "rank_all_candidates": 71,
+        "rank_fraction": 0.5035971223021583,
+        "in_middle_50pct": true,
+        "selected": true,
+        "selection_reason": "positive_in_middle_50pct_nearest_median_rank",
+        "feature_path": "C:\\Projects\\baseline-first\\vadclip_protocol_audit\\assets\\extracted\\UCFClipFeatures\\Stealing\\Stealing062_x264__5.npy"
+      },
+      "summary": {
+        "n_test": 290,
+        "n_candidates": 140,
+        "n_positive": 70,
+        "n_negative": 64,
+        "n_zero": 6,
+        "median_delta_ap": 5.892844545640763e-05,
+        "mean_delta_ap": -0.005335259470832335,
+        "min_delta_ap": -0.46403321875990206,
+        "max_delta_ap": 0.6048824320195343,
+        "target_median_rank": 70.5,
+        "selection_reason": "positive_in_middle_50pct_nearest_median_rank"
+      },
+      "diagnostics": {
+        "gt_abnormal_intervals": [
+          [
+            360,
+            1050
+          ]
+        ],
+        "normal_mean_vadclip": 0.912910576071374,
+        "normal_mean_ours": 0.9398046459509989,
+        "abnormal_mean_vadclip": 0.9827722965807154,
+        "abnormal_mean_ours": 0.9859414466913196,
+        "mean_absolute_score_difference": 0.016346264054480288,
+        "abnormal_fraction_ours_higher": 1.0,
+        "normal_fraction_ours_lower": 0.0
+      },
+      "ledger_checks": [
+        {
+          "arm": "baseline",
+          "metric": "AP1",
+          "recomputed": 0.33824646511527834,
+          "ledger": 0.33824646511527834,
+          "absolute_error": 0.0
+        },
+        {
+          "arm": "baseline",
+          "metric": "AUC1",
+          "recomputed": 0.8720012744059988,
+          "ledger": 0.8720012744059988,
+          "absolute_error": 0.0
+        },
+        {
+          "arm": "ours",
+          "metric": "AP1",
+          "recomputed": 0.3327604916198221,
+          "ledger": 0.3327604916198221,
+          "absolute_error": 0.0
+        },
+        {
+          "arm": "ours",
+          "metric": "AUC1",
+          "recomputed": 0.8750629551010463,
+          "ledger": 0.8750629551010463,
+          "absolute_error": 0.0
+        }
+      ]
+    },
+    {
+      "dataset": "XD",
+      "score_key": "scores",
+      "selection": {
+        "dataset": "XD",
+        "seed": 234,
+        "protocol": "clean",
+        "test_index": 264,
+        "video": "v=8oJMGgaww70__#1_label_B4-0-0__0",
+        "label": "B4-0-0",
+        "score_key": "scores",
+        "frame_start_concat": 449056,
+        "frame_end_concat_exclusive": 452640,
+        "n_frames": 3584,
+        "n_normal": 6,
+        "n_abnormal": 3578,
+        "eligible": true,
+        "exclusion_reason": "",
+        "ap_vadclip": 0.9997967546883301,
+        "ap_ours": 0.9998051655941728,
+        "delta_ap": 8.410905842692884e-06,
+        "delta_ap_pp": 0.0008410905842692884,
+        "rank_all_candidates": 258,
+        "rank_fraction": 0.5421940928270043,
+        "in_middle_50pct": true,
+        "selected": true,
+        "selection_reason": "positive_in_middle_50pct_nearest_median_rank",
+        "feature_path": "C:\\Projects\\baseline-first\\vadclip_method_stage2\\assets\\xd_vadclip_official\\XDTestClipFeatures\\v=8oJMGgaww70__#1_label_B4-0-0__0.npy"
+      },
+      "summary": {
+        "n_test": 800,
+        "n_candidates": 475,
+        "n_positive": 218,
+        "n_negative": 218,
+        "n_zero": 39,
+        "median_delta_ap": 0.0,
+        "mean_delta_ap": -0.0015234185299715121,
+        "min_delta_ap": -0.48976122519117177,
+        "max_delta_ap": 0.34301210559411066,
+        "target_median_rank": 238.0,
+        "selection_reason": "positive_in_middle_50pct_nearest_median_rank"
+      },
+      "diagnostics": {
+        "gt_abnormal_intervals": [
+          [
+            0,
+            3578
+          ]
+        ],
+        "normal_mean_vadclip": 0.9997828006744385,
+        "normal_mean_ours": 0.9998442530632019,
+        "abnormal_mean_vadclip": 0.999850101614878,
+        "abnormal_mean_ours": 0.9999030642232261,
+        "mean_absolute_score_difference": 5.297682115009853e-05,
+        "abnormal_fraction_ours_higher": 1.0,
+        "normal_fraction_ours_lower": 0.0
+      },
+      "ledger_checks": [
+        {
+          "arm": "baseline",
+          "metric": "AP2",
+          "recomputed": 0.7971182262491355,
+          "ledger": 0.7971182262491355,
+          "absolute_error": 0.0
+        },
+        {
+          "arm": "baseline",
+          "metric": "AUC2",
+          "recomputed": 0.9418228922597588,
+          "ledger": 0.9418228922597587,
+          "absolute_error": 1.1102230246251565e-16
+        },
+        {
+          "arm": "ours",
+          "metric": "AP2",
+          "recomputed": 0.8112459076694343,
+          "ledger": 0.8112459076694343,
+          "absolute_error": 0.0
+        },
+        {
+          "arm": "ours",
+          "metric": "AUC2",
+          "recomputed": 0.9423472519555713,
+          "ledger": 0.9423472519555713,
+          "absolute_error": 0.0
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\evidence\\qualitative_representative_selection.csv",
+      "sha256": "3a9fef5ac4d6d820acb6b7125aa82fbc6f4bd5fa364496eadb167d5cc4e0b907"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\evidence\\qualitative_representative_selection.md",
+      "sha256": "717b716cda63648f142d100e17d33e7724e34e4c0eb83e939e12896c59404b48"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\evidence\\qualitative_representative_candidates.csv",
+      "sha256": "3b02d710dc150d05759a47bdf028f1864693c553944045d99d9c5b57ffb82681"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\evidence\\qualitative_representative_summary.csv",
+      "sha256": "1a04b728b665007be81d0d4272741d64ea8ddb58ec0bb17a283030071d6cee68"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\evidence\\qualitative_representative_source_data.csv",
+      "sha256": "95d57e9330b041a6921f47522349ae5d9c81e9e14a72b0007dbe98d708a57115"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\paper\\figures\\qualitative_representative.pdf",
+      "sha256": "e242babc612c28795940a1246ed6ad39d149d9aa7f1dedad56ff641c6c3c4096"
+    },
+    {
+      "path": "C:\\Projects\\baseline-first\\paper1-vadclip-revision\\paper\\figures\\qualitative_representative.png",
+      "sha256": "724771b7b6dc912c95094f544f5b66104159b608fc1e99a6bf523e5858a4724c"
+    }
+  ]
+}

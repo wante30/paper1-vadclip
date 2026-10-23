@@ -1,0 +1,13 @@
+dataset,protocol,condition,seed,metric,value_percent,source_ref
+UCF,clean,B0,234,AUC1,87.200,user_20261015_fixed_epoch
+UCF,clean,B0,235,AUC1,85.674,user_20261015_fixed_epoch
+UCF,clean,B0,236,AUC1,85.867,user_20261015_fixed_epoch
+UCF,clean,Final,234,AUC1,87.506,user_20261015_fixed_epoch
+UCF,clean,Final,235,AUC1,86.090,user_20261015_fixed_epoch
+UCF,clean,Final,236,AUC1,86.387,user_20261015_fixed_epoch
+UCF,official_rerun,B0,234,AUC1,87.90,user_20261015_official_setting
+UCF,official_rerun,B0,235,AUC1,87.40,user_20261015_official_setting
+UCF,official_rerun,B0,236,AUC1,87.60,user_20261015_official_setting
+UCF,official_rerun,Final,234,AUC1,88.25,user_20261015_official_setting
+UCF,official_rerun,Final,235,AUC1,87.72,user_20261015_official_setting
+UCF,official_rerun,Final,236,AUC1,87.98,user_20261015_official_setting

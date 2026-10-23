@@ -1,16 +1,16 @@
 {
   "UCF_AUC1": {
     "baseline": [
-      86.24683868846896,
-      0.8311770758654685
+      86.247,
+      0.8309446431622249
     ],
     "ours": [
-      86.52988917295517,
-      0.8469588455989643
+      86.661,
+      0.7467067697563737
     ],
     "paired": [
-      0.2830504844862058,
-      0.14582960859496616,
+      0.41399999999999676,
+      0.10701401777337329,
       3
     ]
   },
@@ -90,8 +90,8 @@
     ]
   },
   "PVR": [
-    0.2526818205616479,
-    0.15122353773576652,
+    0.2526614046881619,
+    0.15101443710584372,
     2
   ],
   "kNN_given_PVR": [
@@ -100,8 +100,8 @@
     2
   ],
   "PRE_POST": [
-    0.6741348540392806,
-    0.050879281606384,
+    0.805246166071503,
+    0.1828932097079416,
     3
   ],
   "Stage2_C": [
@@ -114,6 +114,39 @@
     0.15502687938978807,
     3
   ],
+  "official_ucf": {
+    "baseline": [
+      87.63333333333334,
+      0.2516611478423591
+    ],
+    "ours": [
+      87.98333333333333,
+      0.2650157228040133
+    ],
+    "paired": [
+      0.34999999999999903,
+      0.030000000000008242,
+      3
+    ]
+  },
+  "correction_source": "evidence/cscwd_snapshot/ucf_auc1_corrections_20261015.csv",
+  "xd_ablation_correction": {
+    "source": "evidence/cscwd_snapshot/xd_ablation_corrections_20261015.csv",
+    "mean_percent": {
+      "B0": 77.57,
+      "AE": 77.6,
+      "B0T": 79.15,
+      "T": 79.23
+    },
+    "delta_from_displayed_baseline_pp": {
+      "B0": 0.0,
+      "AE": 0.03,
+      "B0T": 1.58,
+      "T": 1.66
+    },
+    "scope": "Table IV(c) aggregate AP2 means only; no replacement per-seed observations or dispersion statistics."
+  },
+  "PRE_POST_score_source": "Corrected Final AUC1; Stage 2 preserves the Stage 1 classifier. Original POST scores retained.",
   "complexity": {
     "UCF": {
       "latency_delta_percent": 3.3147744571998983,
